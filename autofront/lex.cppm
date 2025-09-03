@@ -1005,40 +1005,37 @@ auto lex_esc_seq(std::size_t j) -> lexing<std::size_t>
     assert_(co_await peek(j) == '\\', "expected \\");
     ++j;
     auto pk = co_await peek(j);
-    if (U"n\\"sv.contains(pk)) {
+    if (U"n\\\'\""sv.contains(pk)) {
         co_return j + 1uz;
     }
     if (pk == U'{') {
         ++j;
         auto codepoint = std::uint32_t{};
-        for (auto k = 0uz; k < 6uz; ++k, ++j) {
+        for (auto k = 0uz; codepoint <= unicode_limit; ++k, ++j) {
             auto ch = co_await peek(j);
             if (!is_xdigit(ch)) {
                 if (k == 0uz) {
-                    co_return lex_fail(j,
-                                       "expected at least one hex digit, but U+{:X} found",
-                                       static_cast<std::uint32_t>(ch));
+                    co_return lex_fail(j, "expected hex digit, but U+{:X} found", static_cast<std::uint32_t>(ch));
                 }
-                ++j;
                 break;
             }
             auto digit = static_cast<std::uint32_t>([ch] -> char32_t {
                 if (is_digit(ch)) {
-                    return ch;
+                    return ch - U'0';
                 }
                 if (U'A' <= ch && ch <= U'F') {
-                    return ch - U'A';
+                    return ch - U'A' + 10;
                 }
                 if (U'a' <= ch && ch <= U'f') {
-                    return ch - U'a';
+                    return ch - U'a' + 10;
                 }
                 std::unreachable();
             }());
-
+            
             codepoint *= 16uz;
             codepoint += digit;
         }
-        if (codepoint > 0x10FFFF) { // 要求在 Unicode 字符集内
+        if (codepoint > unicode_limit) { // 要求在 Unicode 字符集内
             co_return lex_fail(j, "out of the Unicode character set range, should not exceed 0x10FFFF");
         }
         if (auto pk = co_await peek(j); pk != U'}') {
