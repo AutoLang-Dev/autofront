@@ -1,0 +1,25 @@
+[package]
+name = "autofront"
+version = "0.0.1"
+edition = "2024"
+homepage = "https://autolang.dev"
+repository = "https://github.com/AutoLang-Dev/autofront"
+license = "Apache-2.0"
+
+[profile.release]
+opt-level = 3
+strip = true
+lto = 'fat'
+codegen-units = 1
+
+[dependencies]
+fluent-i18n = "0.1.0"
+unicode-ident = "1.0.22"
+unicode-normalization = "0.1.25"
+unicode-width = "0.2.2"
+annotate-snippets = "0.12.10"
+anstream = "0.6.21"
+
+[patch.crates-io]
+annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
+

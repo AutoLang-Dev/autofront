@@ -1,0 +1,30 @@
+string_literal = 字符串字面量
+char_literal = 字符字面量
+bytes_literal = 字节串字面量
+byte_literal = 字节字面量
+
+lex_eof = 意外的文件尾
+lex_stray = 游离的字符 `{$ch}`
+lex_unexpected = 意料之外的 `{$ch}`
+lex_invalid = `{$ch}` 是无效的
+lex_invalid_escape = 错误的转义 `{$esc}`
+lex_not_7b = 转义序列 `{$esc}` 不是一个 7-bit 字符
+lex_expected_but = 期待 `{$expected}`，但得到了 `{$found}`
+lex_ban_unicode_in = 在{$what}中不允许 Unicode 转义
+lex_invalid_unicode = 非法的 Unicode 转义序列 `{$esc}`
+lex_empty_char = {$what}不能为空
+lex_long_char = 作为{$what}，`{$lit}` 太长了
+lex_looks_like_long_char = `{$s}` 看着像一个过长的字符字面量
+lex_unclosed_quote = 未闭合引号的{$what}
+lex_not_allow = `{$what}` 不允许出现在{$where}中
+lex_nonascii = 在{$what}中不允许非 ASCII 字符
+lex_only_digit = 分隔符后只能是数位
+lex_expected_digit = 期待 {$radix} 进制数位，但得到了 `{$found}`
+lex_two_adj_sep = 两个相邻的数字字面量分隔符
+lex_not_radix_of = `{$ch}` 不是 {$radix} 进制数位
+lex_upper_radix = 基数前缀应为小写
+
+help_digit_should_be = 应该在 [`2`, `{$r}`] 范围内
+help_escaping = 考虑将其转义
+help_inserting_space = 考虑插入空格
+help_should_be = 应该为 `{$what}`

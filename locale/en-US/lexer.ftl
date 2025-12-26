@@ -1,0 +1,30 @@
+string_literal = string literal
+char_literal = char literal
+bytes_literal = byte string literal
+byte_literal = byte literal
+
+lex_eof = unexpected eof
+lex_stray = stray `{$ch}`
+lex_unexpected = unexpected `{$ch}`
+lex_invalid = `{$ch}` is invalid
+lex_invalid_escape = invalid escape `{$esc}`
+lex_not_7b = escape `{$esc}` is not a 7-bit char
+lex_expected_but = expected `{$expected}`, but `{$found}` found
+lex_ban_unicode_in = unicode escape sequences are not allowed in {$where}
+lex_invalid_unicode = invalid unicode escape sequence `{$esc}`
+lex_empty_char = {$what} cannot be empty
+lex_long_char = `{$lit}` is too long for a {$what}
+lex_looks_like_long_char = `{$s}` looks like an overly long char literal
+lex_unclosed_quote = unclosed quote {$what}
+lex_not_allow = `{$what}` is not allowed in {$where}
+lex_nonascii = non-ASCII char is not allowed in {$what}
+lex_only_digit = only digits can follow the `'`
+lex_expected_digit = expected base-{$radix} digit, but `{$found}` found
+lex_two_adj_sep = two adjacent numeric literal separators
+lex_not_radix_of = `{$ch}` is not a base-{$radix} digit
+lex_upper_radix = radix prefix should be lowercase
+
+help_digit_should_be = it should be within the range [`2`, `{$r}`]
+help_escaping = consider escaping
+help_inserting_space = consider inserting space
+help_should_be = should be `{$what}`
