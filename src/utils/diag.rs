@@ -93,7 +93,7 @@ impl<'src> DiagSink<'src> {
       }
    }
 
-   pub fn print(&self) -> Result<(), CompilationError> {
+   pub fn print(&self, show_recovery: bool) -> Result<(), CompilationError> {
       let renderer = Renderer::styled().decor_style(DecorStyle::Unicode);
 
       for report in &self.diags {
@@ -103,10 +103,16 @@ impl<'src> DiagSink<'src> {
       }
 
       if self.errors > 0 {
-         return Err(CompilationError {
+         let err = CompilationError {
             errors: self.errors,
             warnings: self.warnings,
-         });
+         };
+
+         if show_recovery {
+            eprintln!("{err}");
+            return Ok(());
+         }
+         return Err(err);
       }
 
       eplntr!(

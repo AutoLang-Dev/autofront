@@ -3,18 +3,19 @@ use std::{error::Error, fmt::Display};
 use crate::wtr;
 
 #[derive(Debug, Clone)]
+pub struct DebugSubcommand {
+   pub file: String,
+   pub output: Option<String>,
+   pub show_recovery: bool,
+}
+
+#[derive(Debug, Clone)]
 pub enum Command {
    None,
    Help(Option<String>),
    Version,
-   Lex {
-      file: String,
-      output: Option<String>,
-   },
-   Tt {
-      file: String,
-      output: Option<String>,
-   },
+   Lex(DebugSubcommand),
+   Tt(DebugSubcommand),
 }
 
 #[derive(Debug, Clone)]

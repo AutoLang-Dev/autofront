@@ -1,58 +1,48 @@
 use crate::{
-   cli::cmd::{CliError, Command, Result},
+   cli::{
+      DebugSubcommand,
+      cmd::{CliError, Command, Result},
+   },
    tr,
 };
 
-struct FromTo {
-   file: String,
-   output: Option<String>,
-}
+impl DebugSubcommand {
+   fn parse(args: &[String]) -> Result<DebugSubcommand> {
+      let mut file = None;
+      let mut output = None;
+      let mut show_recovery = false;
 
-impl FromTo {
-   fn parse(args: &[String]) -> Result<FromTo> {
-      let file;
-      let output;
+      for i in 1.. {
+         let Some(arg) = args.get(i).cloned() else {
+            break;
+         };
 
-      let first = args
-         .get(1)
-         .ok_or(CliError::MissingArgument(tr!(cli_file)))?;
-
-      if first.starts_with("-") {
-         if first != "-o" {
-            return Err(CliError::UnknownOption(first.into()));
-         }
-
-         let second = args
-            .get(2)
-            .ok_or(CliError::MissingArgument(tr!(cli_file)))?;
-
-         output = Some(second.into());
-
-         let third = args
-            .get(3)
-            .ok_or(CliError::MissingArgument(tr!(cli_file)))?;
-
-         file = third.into()
-      } else {
-         file = first.into();
-
-         match args.get(2) {
-            Some(second) => {
-               if second != "-o" {
-                  return Err(CliError::UnknownOption(second.into()));
+         match &arg as &str {
+            "--show-recovery" => show_recovery = true,
+            "-o" => continue,
+            _ => {
+               if arg.starts_with("-") {
+                  return Err(CliError::UnknownOption(arg));
                }
 
-               let third = args
-                  .get(3)
-                  .ok_or(CliError::MissingArgument(tr!(cli_file)))?;
-
-               output = Some(third.into())
+               if i > 1 || args.get(i - 1).is_some_and(|p| p == "-o") {
+                  output = Some(arg)
+               } else {
+                  file = Some(arg)
+               }
             }
-            None => output = None,
          }
       }
 
-      Ok(FromTo { file, output })
+      let Some(file) = file else {
+         return Err(CliError::MissingArgument(tr!(cli_file)));
+      };
+
+      Ok(DebugSubcommand {
+         file,
+         output,
+         show_recovery,
+      })
    }
 }
 
@@ -80,15 +70,8 @@ pub fn parse_args(args: &[String]) -> Result<Command> {
 
       "version" => Ok(Command::Version),
 
-      "lex" => {
-         let FromTo { file, output } = FromTo::parse(args)?;
-         Ok(Command::Lex { file, output })
-      }
-
-      "tt" => {
-         let FromTo { file, output } = FromTo::parse(args)?;
-         Ok(Command::Tt { file, output })
-      }
+      "lex" => Ok(Command::Lex(DebugSubcommand::parse(args)?)),
+      "tt" => Ok(Command::Tt(DebugSubcommand::parse(args)?)),
 
       other => Err(CliError::UnknownCommand(other.into())),
    }

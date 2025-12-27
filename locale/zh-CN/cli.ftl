@@ -11,13 +11,14 @@ cli_unknown_option = 未知选项：{ $opt }
 
 cli_help = 用法：autofront <命令> [选项]
     命令：
-      help [<命令>] 显示帮助信息
-      version       显示版本
-      lex <文件>    词法分析（不稳定）
-      tt <文件>     构建 TokenTree（不稳定）
+      help [<命令>]   显示帮助信息
+      version         显示版本
+      lex <文件>      词法分析（不稳定）
+      tt <文件>       构建 TokenTree（不稳定）
 
     选项：
-      -o <文件>     写入输出到文件
+      -o <文件>       写入输出到文件
+      --show-recovery 失败时也打印结果
 
 cli_help_help = help [<命令>]：显示帮助信息
 cli_help_version = version：显示版本信息

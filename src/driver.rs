@@ -10,7 +10,7 @@ use std::{
 use unicode_width::UnicodeWidthStr;
 
 use crate::{
-   cli::{Command, parse_args, print_help},
+   cli::{Command, DebugSubcommand, parse_args, print_help},
    pipelines::{
       lexer::{Source, lex},
       tokentree::parse_token_tree,
@@ -51,13 +51,19 @@ impl Driver {
       Ok(Source { file, code })
    }
 
-   fn lex(&mut self, file: String, output: Option<String>) -> Result<(), Box<dyn Error>> {
+   fn lex(&mut self, args: DebugSubcommand) -> Result<(), Box<dyn Error>> {
+      let DebugSubcommand {
+         file,
+         output,
+         show_recovery,
+      } = args;
+
       let mut sink = DiagSink::new();
       let src = self.load(file)?;
 
       let tokens = lex(&src, &mut sink);
 
-      sink.print()?;
+      sink.print(show_recovery)?;
 
       let mut wid = 0;
       for token in &tokens {
@@ -74,14 +80,20 @@ impl Driver {
       Ok(())
    }
 
-   fn tt(&mut self, file: String, output: Option<String>) -> Result<(), Box<dyn Error>> {
+   fn tt(&mut self, args: DebugSubcommand) -> Result<(), Box<dyn Error>> {
+      let DebugSubcommand {
+         file,
+         output,
+         show_recovery,
+      } = args;
+
       let mut sink = DiagSink::new();
       let src = self.load(file)?;
 
       let tokens = lex(&src, &mut sink);
       let tt = parse_token_tree(&src, &tokens, &mut sink);
 
-      sink.print()?;
+      sink.print(show_recovery)?;
 
       let out = get_out!(output);
       writeln!(out, "{tt}")?;
@@ -99,8 +111,8 @@ impl Driver {
          None => anstream::println!("{}", tr!(cli_welcome)),
          Help(cmd) => print_help(cmd.as_deref())?,
          Version => anstream::println!("{}", env!("CARGO_PKG_VERSION")),
-         Lex { file, output } => self.lex(file, output)?,
-         Tt { file, output } => self.tt(file, output)?,
+         Lex(args) => self.lex(args)?,
+         Tt(args) => self.tt(args)?,
       }
 
       Ok(())

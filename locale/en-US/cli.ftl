@@ -18,6 +18,7 @@ cli_help = Usage: autofront <COMMAND> [OPTIONS]
     
     Options:
       -o <FILE>         Write output to FILE
+      --show-recovery   Print the results even if it fails
 
 cli_help_help = help [<COMMAND>]: Display help message
 cli_help_version = version: Print version info
