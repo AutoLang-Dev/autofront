@@ -347,6 +347,16 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             continue;
          }
 
+         if c == '\n' || c == '\r' {
+            self.sink.error(
+               error()
+                  .primary_title(tr!(lex_unclosed_quote, what = what))
+                  .element(snippet_here_from!(self, start)),
+            );
+
+            return None;
+         }
+
          self.next().unwrap();
 
          if c == qch {
@@ -357,16 +367,6 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          }
 
          match c {
-            '\n' | '\r' => {
-               self.sink.error(
-                  error()
-                     .primary_title(tr!(lex_unclosed_quote, what = what))
-                     .element(snippet_here_from!(self, start)),
-               );
-
-               return None;
-            }
-
             '\t' => {
                let primary = tr!(lex_not_allow, what = "\\t", where = what);
 
