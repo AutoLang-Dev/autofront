@@ -383,7 +383,18 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             }
 
             _ => {
-               if byte && !c.is_ascii() {
+               if c.is_stray() {
+                  let title = {
+                     let ch = c.escape_line();
+                     tr!(lex_stray, ch)
+                  };
+
+                  self.sink.error(
+                     error()
+                        .primary_title(title)
+                        .element(snippet_here_from!(self, pos)),
+                  );
+               } else if byte && !c.is_ascii() {
                   let mut bads = c.to_string();
                   while self.peek().is_some_and(|c| !c.is_ascii()) {
                      bads.push(self.next().unwrap());
