@@ -188,6 +188,7 @@ pub enum TokenKind {
    Int(IntLit),
    Suffix(String),
    Delim(Delimiter, DelimKind),
+   Error(String),
 }
 
 impl TokenKind {

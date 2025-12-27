@@ -163,6 +163,7 @@ impl Display for TokenKind {
             };
             write!(f, "{}", ch)
          }
+         Error(inner) => write!(f, "{inner}"),
       }
    }
 }
@@ -183,6 +184,7 @@ impl Display for Token {
             Int(_) => (181, 206, 168),
             Suffix(_) => (134, 198, 145),
             Delim(_, _) => (212, 212, 212),
+            Error(_) => (244, 71, 71),
          };
 
          let color = RgbColor(r, g, b).on_default();

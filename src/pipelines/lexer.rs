@@ -923,6 +923,14 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          let start = self.pos;
 
          let Some(kind) = self.lex_one() else {
+            let span = self.span(start);
+            let src = self.src.slice(span);
+
+            tokens.push(Token {
+               kind: Error(src.to_string()),
+               span,
+            });
+
             continue;
          };
 
