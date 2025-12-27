@@ -99,7 +99,7 @@ impl<'src, 'sink, 'tokens> Parser<'src, 'sink, 'tokens> {
                self.next();
 
                stream.push(TokenTree::Delimited(Group {
-                  delim: open,
+                  delim: (open, close).into(),
                   span: GroupSpan::from_spans(token.span, close_span),
                   stream: ts,
                }));

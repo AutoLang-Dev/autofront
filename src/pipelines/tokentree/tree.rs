@@ -3,6 +3,60 @@ use crate::{
    utils::Span,
 };
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum GroupDelim {
+   Parens,
+   Brackets,
+   Braces,
+   Mismatch(Delimiter, Delimiter),
+}
+
+impl GroupDelim {
+   pub fn open(self) -> char {
+      use GroupDelim::*;
+      match self {
+         Braces => '{',
+         Brackets => '[',
+         Parens => '(',
+         Mismatch(open, _) => open.open(),
+      }
+   }
+
+   pub fn close(self) -> char {
+      use GroupDelim::*;
+      match self {
+         Braces => '}',
+         Brackets => ']',
+         Parens => ')',
+         Mismatch(_, close) => close.close(),
+      }
+   }
+
+   pub fn is_mismatch(self) -> bool {
+      matches!(self, Self::Mismatch(_, _))
+   }
+}
+
+impl From<Delimiter> for GroupDelim {
+   fn from(value: Delimiter) -> Self {
+      use {Delimiter::*, GroupDelim::*};
+      match value {
+         Paren => Parens,
+         Bracket => Brackets,
+         Brace => Braces,
+      }
+   }
+}
+
+impl From<(Delimiter, Delimiter)> for GroupDelim {
+   fn from((open, close): (Delimiter, Delimiter)) -> Self {
+      match open == close {
+         false => GroupDelim::Mismatch(open, close),
+         true => open.into(),
+      }
+   }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct GroupSpan {
    pub open: usize,
@@ -34,7 +88,7 @@ impl GroupSpan {
 
 #[derive(Debug, Clone)]
 pub struct Group<'t> {
-   pub delim: Delimiter,
+   pub delim: GroupDelim,
    pub span: GroupSpan,
    pub stream: TokenStream<'t>,
 }

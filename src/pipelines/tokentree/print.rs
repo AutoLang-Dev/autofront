@@ -1,5 +1,6 @@
 use std::fmt::{self, Display, Formatter};
 
+use annotate_snippets::renderer::RgbColor;
 use unicode_width::UnicodeWidthStr;
 
 use crate::pipelines::tokentree::tree::{Group, TokenStream, TokenTree};
@@ -27,11 +28,20 @@ impl TokenTreePrinter {
 
    fn pretty_print_group(&mut self, group: &Group) {
       let delim = group.delim;
+      let is_mismatch = delim.is_mismatch();
+
+      let render_delim = |c: char| match is_mismatch {
+         true => {
+            let color = RgbColor(244, 71, 71).on_default();
+            format!("{color}{c}{color:#}")
+         }
+         false => c.to_string(),
+      };
 
       self.lines.push(Line {
          indent: self.indent,
          span: format!("{}", group.span_open()),
-         token: format!("{}", delim.open()),
+         token: render_delim(delim.open()),
       });
 
       self.indent += 2;
@@ -41,7 +51,7 @@ impl TokenTreePrinter {
       self.lines.push(Line {
          indent: self.indent,
          span: format!("{}", group.span_close()),
-         token: format!("{}", delim.close()),
+         token: render_delim(delim.close()),
       });
    }
 
