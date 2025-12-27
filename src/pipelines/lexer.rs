@@ -3,7 +3,9 @@ mod token;
 
 use std::{fmt::Write, ops::Range};
 
-use annotate_snippets::{Annotation, AnnotationKind, Group, Patch, Snippet};
+use annotate_snippets::{
+   Annotation, AnnotationKind, Group, Patch, Snippet, normalize_untrusted_str,
+};
 use unicode_normalization::UnicodeNormalization;
 
 use crate::{
@@ -938,7 +940,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             let src = self.src.slice(span);
 
             tokens.push(Token {
-               kind: Error(src.to_string()),
+               kind: Error(normalize_untrusted_str(src)),
                span,
             });
 
