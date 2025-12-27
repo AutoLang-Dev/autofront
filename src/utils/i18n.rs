@@ -95,7 +95,7 @@ pub fn init_locale() -> bool {
          Err(VarError::NotPresent) => None,
          Err(err) => {
             anstream::eprintln!("VarError::NotUnicode: {err}");
-            return false
+            return false;
          }
       }
    };
