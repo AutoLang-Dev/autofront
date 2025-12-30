@@ -86,7 +86,7 @@ impl<'src, 'sink, 'tokens> Parser<'src, 'sink, 'tokens> {
 
                if close != open {
                   self.sink.error(
-                     error().primary_title(tr!(mismatch_delim)).element(
+                     error().primary_title(tr!(tt_mismatch_delim)).element(
                         element.annotation(
                            AnnotationKind::Primary
                               .span(close_span.into())
@@ -126,7 +126,7 @@ pub fn parse_token_tree<'src, 'token>(
 
    if let Some((close, _)) = parser.tokens.split_first() {
       sink.error(
-         error().primary_title(tr!(no_corresponding_delim)).element(
+         error().primary_title(tr!(tt_no_corresponding_delim)).element(
             src.snippet().annotation(
                AnnotationKind::Primary
                   .span(close.span.into())
