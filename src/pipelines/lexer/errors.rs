@@ -241,7 +241,7 @@ impl Diagnostics for NotAllow {
       let patch = Patch::new(span.into(), replacement);
 
       let h = help()
-         .primary_title(tre!(help_escaping))
+         .secondary_title(tre!(help_escaping))
          .element(src.snippet().patch(patch));
 
       sink.report([e, h], 1, 0);
@@ -489,7 +489,7 @@ impl Diagnostics for UpperRadix {
       let patch = Patch::new(patch, what);
 
       let h = help()
-         .primary_title(secondary)
+         .secondary_title(secondary)
          .element(src.snippet().patch(patch));
 
       sink.report([e, h], 1, 0);
