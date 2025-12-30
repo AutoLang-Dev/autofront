@@ -2,12 +2,14 @@
 
 use std::{
    error::{self},
-   fmt::Display,
+   fmt::{self, Display},
 };
 
-use annotate_snippets::{Group, Level, Renderer, renderer::DecorStyle};
+use annotate_snippets::{
+   Annotation, AnnotationKind, Group, Level, Renderer, Report, renderer::DecorStyle,
+};
 
-use crate::{eplntr, tr, wtr};
+use crate::{eplntr, pipelines::lexer::Source, tr, tre, utils::Span, wtr};
 
 #[derive(Debug)]
 pub struct CompilationError {
@@ -29,60 +31,28 @@ impl Display for CompilationError {
 impl error::Error for CompilationError {}
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct DiagSnapshot {
-   pub diags: usize,
-   pub errors: usize,
-   pub warnings: usize,
-}
+pub struct DiagSnapshot(usize);
 
 #[derive(Debug, Default)]
-pub struct DiagSink<'src> {
-   diags: Vec<Box<[Group<'src>]>>,
-   errors: usize,
-   warnings: usize,
+pub struct DiagSink {
+   diags: Vec<Box<dyn Diagnostics>>,
 }
 
-impl<'src> DiagSink<'src> {
-   pub fn new() -> Self {
-      Self {
-         diags: vec![],
-         errors: 0,
-         warnings: 0,
-      }
+impl DiagSink {
+   pub fn diag(&mut self, diag: impl Diagnostics + 'static) {
+      self.push(Box::new(diag))
    }
 
-   pub fn error(&mut self, e: Group<'src>) {
-      self.diags.push(Box::new([e]));
-      self.errors += 1;
-   }
-
-   pub fn warn(&mut self, w: Group<'src>) {
-      self.diags.push(Box::new([w]));
-      self.warnings += 1;
-   }
-
-   pub fn report<const N: usize>(&mut self, d: [Group<'src>; N], e: usize, w: usize) {
-      self.diags.push(Box::new(d));
-      self.errors += e;
-      self.warnings += w;
-   }
-
-   pub fn has_errors(&self) -> bool {
-      self.errors != 0
+   pub fn push(&mut self, diag: Box<dyn Diagnostics>) {
+      self.diags.push(diag)
    }
 
    pub fn snapshot(&self) -> DiagSnapshot {
-      DiagSnapshot {
-         diags: self.diags.len(),
-         errors: self.errors,
-         warnings: self.warnings,
-      }
+      DiagSnapshot(self.diags.len())
    }
 
    pub fn restore(&mut self, snapshot: DiagSnapshot) {
-      self.diags.truncate(snapshot.diags);
-      self.errors = snapshot.errors;
-      self.warnings = snapshot.warnings;
+      self.diags.truncate(snapshot.0);
    }
 
    pub fn ensure(&self, snapshot: DiagSnapshot) -> Option<()> {
@@ -92,14 +62,54 @@ impl<'src> DiagSink<'src> {
          None
       }
    }
+}
 
-   pub fn print(&self, show_recovery: bool) -> Result<(), CompilationError> {
+#[derive(Debug)]
+pub struct DiagPrinter<'src> {
+   src: &'src Source,
+   renderer: Renderer,
+   errors: usize,
+   warnings: usize,
+}
+
+impl<'src> DiagPrinter<'src> {
+   pub fn new(src: &'src Source) -> Self {
+      let renderer = Renderer::styled().decor_style(DecorStyle::Unicode);
+      Self {
+         src,
+         renderer,
+         errors: 0,
+         warnings: 0,
+      }
+   }
+
+   fn render(&self, diag: Report<'src>) {
+      let output = self.renderer.render(diag);
+      anstream::eprintln!("{output}");
+      anstream::eprintln!();
+   }
+
+   pub fn error(&mut self, e: Group<'src>) {
+      self.render(&[e]);
+      self.errors += 1;
+   }
+
+   pub fn warn(&mut self, w: Group<'src>) {
+      self.render(&[w]);
+      self.warnings += 1;
+   }
+
+   pub fn report<const N: usize>(&mut self, d: [Group<'src>; N], e: usize, w: usize) {
+      self.render(&d);
+      self.errors += e;
+      self.warnings += w;
+   }
+
+   pub fn print(mut self, sink: DiagSink, show_recovery: bool) -> Result<(), CompilationError> {
       let renderer = Renderer::styled().decor_style(DecorStyle::Unicode);
 
-      for report in &self.diags {
-         let output = renderer.render(report.as_ref());
-         anstream::eprintln!("{output}");
-         anstream::eprintln!();
+      for diag in sink.diags {
+         diag.report(self.src, &mut self);
       }
 
       if self.errors > 0 {
@@ -143,4 +153,20 @@ pub fn note() -> Level<'static> {
 
 pub fn help() -> Level<'static> {
    Level::HELP.with_name(tr!(help))
+}
+
+pub trait Diagnostics: fmt::Debug {
+   fn report<'src>(&self, src: &'src Source, sink: &mut DiagPrinter<'src>);
+}
+
+pub fn here(span: Span) -> Annotation<'static> {
+   AnnotationKind::Primary.span(span.into()).label(tre!(here))
+}
+
+#[macro_export]
+macro_rules! annotation_here {
+   ($src:expr, $span:expr) => {{
+      use $crate::utils::here;
+      $src.snippet().annotation(here($span))
+   }};
 }
