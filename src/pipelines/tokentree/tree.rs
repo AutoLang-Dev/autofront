@@ -12,7 +12,7 @@ pub enum GroupDelim {
 }
 
 impl GroupDelim {
-   pub fn open(self) -> char {
+   pub fn char_open(self) -> char {
       use GroupDelim::*;
       match self {
          Braces => '{',
@@ -22,7 +22,7 @@ impl GroupDelim {
       }
    }
 
-   pub fn close(self) -> char {
+   pub fn char_close(self) -> char {
       use GroupDelim::*;
       match self {
          Braces => '}',
