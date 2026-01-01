@@ -33,23 +33,11 @@ impl GroupDelim {
    }
 
    pub fn char_open(self) -> char {
-      use GroupDelim::*;
-      match self {
-         Braces => '{',
-         Brackets => '[',
-         Parens => '(',
-         Mismatch(open, _) => open.open(),
-      }
+      self.open().open()
    }
 
    pub fn char_close(self) -> char {
-      use GroupDelim::*;
-      match self {
-         Braces => '}',
-         Brackets => ']',
-         Parens => ')',
-         Mismatch(_, close) => close.close(),
-      }
+      self.close().close()
    }
 
    pub fn is_mismatch(self) -> bool {
