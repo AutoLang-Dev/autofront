@@ -5,13 +5,11 @@ mod tree;
 use crate::{
    pipelines::{
       lexer::{DelimKind, Token, TokenKind},
-      tokentree::{
-         errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup},
-         tree::{Group, GroupSpan, TokenStream, TokenTree},
-      },
+      tokentree::errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup},
    },
    utils::{DiagSink, Diagnostics},
 };
+pub use tree::{Group, GroupSpan, TokenStream, TokenTree};
 
 #[derive(Debug)]
 struct Parser<'sink, 'tokens> {
