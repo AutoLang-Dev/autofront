@@ -12,6 +12,26 @@ pub enum GroupDelim {
 }
 
 impl GroupDelim {
+   pub fn open(self) -> Delimiter {
+      use {Delimiter::*, GroupDelim::*};
+      match self {
+         Braces => Brace,
+         Brackets => Bracket,
+         Parens => Paren,
+         Mismatch(open, _) => open,
+      }
+   }
+
+   pub fn close(self) -> Delimiter {
+      use {Delimiter::*, GroupDelim::*};
+      match self {
+         Braces => Brace,
+         Brackets => Bracket,
+         Parens => Paren,
+         Mismatch(_, close) => close,
+      }
+   }
+
    pub fn char_open(self) -> char {
       use GroupDelim::*;
       match self {
