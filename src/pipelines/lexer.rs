@@ -397,12 +397,6 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
    }
 
    fn lex_radix(&mut self, radix: u32) -> Option<Vec<u8>> {
-      macro_rules! only_digit {
-         () => {
-            OnlyDigit::new(self.span(self.pos - 1))
-         };
-      }
-
       assert!((2..=36).contains(&radix));
 
       let first = self.peek_char()?;
@@ -428,22 +422,12 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             continue;
          }
 
-         if c.is_ident_start() {
-            if c == '_' && last_is_sep {
-               self.diag(only_digit!());
-               return None;
-            }
-            break;
-         }
-
          if c == '\'' {
             let pos = self.pos;
 
             if last_is_sep {
                let span = (pos - 1..pos + 1).into();
                self.diag(TwoAdjSep::new(span));
-
-               return None;
             }
 
             last_is_sep = true;
@@ -455,14 +439,14 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
       }
 
       if last_is_sep {
-         self.diag(only_digit!());
-         return None;
+         let span = self.span(self.pos - 1);
+         self.diag(OnlyDigit::new(span));
       }
 
       Some(digits)
    }
 
-   fn lex_digit(&mut self) -> Option<IntLit> {
+   fn lex_digit_impl(&mut self) -> Option<IntLit> {
       let c = self.peek().unwrap();
       assert!(c.is_ascii_digit());
 
@@ -490,12 +474,12 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          'R' | 'r' => {
             let pos = self.pos;
             let r = self.advance()?;
-            let Some(radix) = r.to_digit(36) else {
+
+            let radix = r.to_digit(36).unwrap_or_else(|| {
                let span = self.span(pos);
                self.diag(NotRadixOf::new(r, 36, span));
-
-               return None;
-            };
+               36
+            });
 
             if self.peek() == Some('\'') {
                self.next();
@@ -517,6 +501,21 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             Some(IntLit::Dec(vec![0]))
          }
       }
+   }
+
+   fn lex_digit(&mut self) -> Option<IntLit> {
+      let snapshot = self.sink.snapshot();
+
+      let r = self.lex_digit_impl();
+
+      if self.sink.ensure(snapshot).is_none() {
+         if self.peek()?.is_ident_start() {
+            self.lex_ident();
+         }
+         return None;
+      }
+
+      r
    }
 
    fn lex_oper(&mut self) -> Option<Op> {
