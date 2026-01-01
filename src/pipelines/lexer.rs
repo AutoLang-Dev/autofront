@@ -1,19 +1,13 @@
+mod errors;
 mod print;
 mod token;
 
-use std::{fmt::Write, ops::Range};
-
-use annotate_snippets::{
-   Annotation, AnnotationKind, Group, Patch, Snippet, normalize_untrusted_str,
-};
+use annotate_snippets::{Snippet, normalize_untrusted_str};
 use unicode_normalization::UnicodeNormalization;
 
 use crate::{
-   tr,
-   utils::{
-      AttrForLexing, DiagSink, EscapeLine, EscapeLineExt, EscapeSourceExt, Span, error, help,
-      warning,
-   },
+   pipelines::lexer::errors::*,
+   utils::{AttrForLexing, DiagSink, Diagnostics, Span},
 };
 
 pub use token::*;
@@ -35,42 +29,17 @@ impl Source {
    }
 }
 
-fn here(span: impl Into<Range<usize>>) -> Annotation<'static> {
-   AnnotationKind::Primary.span(span.into()).label(tr!(here))
-}
-
 pub struct Lexer<'src, 'sink> {
    pub src: &'src Source,
    pub pos: usize,
-   sink: &'sink mut DiagSink<'src>,
-}
-
-macro_rules! snippet {
-   ($lexer:expr) => {
-      $lexer.src.snippet()
-   };
-}
-
-macro_rules! snippet_here {
-   ($lexer:expr, $span:expr) => {
-      snippet!($lexer).annotation(here($span))
-   };
-}
-
-macro_rules! snippet_here_from {
-   ($lexer:expr, $pos:expr) => {
-      snippet_here!($lexer, $lexer.span($pos))
-   };
-}
-
-macro_rules! eof {
-   ($lexer:expr) => {
-      Group::with_title(error().primary_title(tr!(lex_eof)))
-         .element(snippet_here_from!($lexer, $lexer.pos))
-   };
+   sink: &'sink mut DiagSink,
 }
 
 impl<'src, 'sink> Lexer<'src, 'sink> {
+   fn diag(&mut self, diag: impl Diagnostics + 'static) {
+      self.sink.diag(diag)
+   }
+
    fn code(&self) -> &str {
       &self.src.code
    }
@@ -103,7 +72,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
 
    fn advance(&mut self) -> Option<char> {
       if self.eof() {
-         self.sink.error(eof!(self));
+         self.diag(Eof::new(self.pos));
          return None;
       }
       self.next()
@@ -111,7 +80,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
 
    fn peek_char(&mut self) -> Option<char> {
       if self.eof() {
-         self.sink.error(eof!(self));
+         self.diag(Eof::new(self.pos));
          return None;
       }
       self.peek()
@@ -133,12 +102,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
       (start..self.pos).into()
    }
 
-   fn sub(&self, span: Span) -> EscapeLine<&str> {
-      self.src.slice(span).escape_line()
-   }
-
-   fn sub_from(&self, pos: usize) -> EscapeLine<&str> {
-      self.src.slice(self.span(pos)).escape_line()
+   fn sub(&self, span: Span) -> &str {
+      self.src.slice(span)
    }
 
    fn skip(&mut self) -> bool {
@@ -174,16 +139,10 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
 
       macro_rules! hex {
          () => {{
-            let pos = self.pos;
             let d = self.next()?;
             if !d.is_ascii_hexdigit() {
-               let primary = tr!(lex_not_radix_of, ch = d.escape_source(), radix = 16);
-
-               let diag = error()
-                  .primary_title(primary)
-                  .element(snippet_here_from!(self, pos));
-
-               self.sink.error(diag);
+               let span = self.span(self.pos);
+               self.diag(NotRadixOf::new(d, 16, span));
             }
             d
          }};
@@ -202,14 +161,10 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             let pos = self.pos;
             let first = self.next()?;
             if first != '{' {
-               let diag = error()
-                  .primary_title(tr!(
-                     lex_expected_but,
-                     expected = "{",
-                     found = first.escape_line(),
-                  ))
-                  .element(snippet_here_from!(self, pos));
-               self.sink.error(diag);
+               let expected = '{';
+               let found = first;
+               let span = pos..self.pos;
+               self.diag(ExpectedBut::new(expected, found, span));
                return None;
             }
 
@@ -230,16 +185,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             let span = (start..self.pos).into();
 
             if let Some(multi) = multibyte {
-               let what = match multi {
-                  true => tr!(bytes_literal),
-                  false => tr!(byte_literal),
-               };
-
-               self.sink.error(
-                  error()
-                     .primary_title(tr!(lex_ban_unicode_in, what,))
-                     .element(snippet_here_from!(self, start)),
-               );
+               let what = QuotedKind::new(multi, true);
+               self.diag(BanUnicodeIn::new(what, span));
 
                return None;
             }
@@ -249,10 +196,9 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
                .and_then(char::from_u32);
 
             let Some(ch) = ch else {
-               let diag = error()
-                  .primary_title(tr!(lex_invalid_unicode, esc = self.sub(span)))
-                  .element(snippet_here!(self, span));
-               self.sink.error(diag);
+               let esc = self.sub(span);
+               self.diag(InvalidUnicode::new(esc, span));
+
                return None;
             };
 
@@ -267,13 +213,9 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             let val = u8::from_str_radix(&val, 16).unwrap();
 
             if multibyte.is_none() && val > 0x7F {
-               let primary = tr!(lex_not_7b, esc = self.sub_from(start));
-
-               self.sink.error(
-                  error()
-                     .primary_title(primary)
-                     .element(snippet_here_from!(self, start)),
-               );
+               let span = self.span(start);
+               let esc = self.sub(span);
+               self.diag(Not7B::new(esc, span));
             }
 
             Hex(val)
@@ -286,13 +228,9 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          e @ ('\\' | '\'' | '"') => Char(e),
 
          _ => {
-            let primary = tr!(lex_invalid_escape, esc = self.sub_from(start));
-
-            self.sink.error(
-               error()
-                  .primary_title(primary)
-                  .element(snippet_here_from!(self, start)),
-            );
+            let span = self.span(start);
+            let esc = self.sub(span);
+            self.diag(InvalidEscape::new(esc, span));
 
             return None;
          }
@@ -311,14 +249,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
 
       assert_eq!(self.next(), Some(qch));
 
-      let what = {
-         match (multi, byte) {
-            (true, false) => tr!(string_literal),
-            (false, false) => tr!(char_literal),
-            (true, true) => tr!(bytes_literal),
-            (false, true) => tr!(byte_literal),
-         }
-      };
+      let what = QuotedKind::new(multi, byte);
 
       let snapshot = self.sink.snapshot();
 
@@ -350,11 +281,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          }
 
          if c == '\n' || c == '\r' {
-            self.sink.error(
-               error()
-                  .primary_title(tr!(lex_unclosed_quote, what = what))
-                  .element(snippet_here_from!(self, start)),
-            );
+            let span = self.span(start);
+            self.diag(UnclosedQuote::new(what, span));
 
             return None;
          }
@@ -368,62 +296,23 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             break;
          }
 
+         let span = self.span(pos);
+
          match c {
             '\t' => {
-               let primary = tr!(lex_not_allow, what = "\\t", where = what);
-
-               let patch = Patch::new(pos..self.pos, "\\t");
-
-               let e = error()
-                  .primary_title(primary)
-                  .element(snippet_here_from!(self, pos));
-               let h = help()
-                  .secondary_title(tr!(help_escaping))
-                  .element(snippet!(self).patch(patch));
-
-               self.sink.report([e, h], 1, 0);
+               self.diag(NotAllow::new(c, what, span, "\\t"));
             }
 
             _ => {
                if c.is_stray() {
-                  let title = {
-                     let ch = c.escape_line();
-                     tr!(lex_stray, ch)
-                  };
-
-                  self.sink.error(
-                     error()
-                        .primary_title(title)
-                        .element(snippet_here_from!(self, pos)),
-                  );
+                  self.diag(Stray::new(c, self.span(pos)));
                } else if byte && !c.is_ascii() {
                   let mut bads = c.to_string();
                   while self.peek().is_some_and(|c| !c.is_ascii()) {
                      bads.push(self.next().unwrap());
                   }
 
-                  let mut replacement = String::new();
-                  for byte in bads.as_bytes() {
-                     write!(replacement, "\\x{byte:02X}").unwrap();
-                  }
-
-                  let span = self.span(pos);
-
-                  let e = error()
-                     .primary_title(tr!(lex_nonascii, what))
-                     .element(snippet_here!(self, span));
-
-                  if multi {
-                     let patch = Patch::new(span.into(), replacement);
-
-                     let h = help()
-                        .secondary_title(tr!(help_escaping))
-                        .element(snippet!(self).patch(patch));
-
-                     self.sink.report([e, h], 1, 0);
-                  } else {
-                     self.sink.error(e);
-                  }
+                  self.diag(Nonascii::new(bads, what, span));
                }
 
                last_seg.push(c);
@@ -433,51 +322,25 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
 
       self.sink.ensure(snapshot)?;
 
+      let span = self.span(start);
+      let lit = self.sub(span);
+
       if !multi {
          match &segs[..] {
             [] => {
-               let what = match byte {
-                  true => tr!(byte_literal),
-                  false => tr!(char_literal),
-               };
-
-               self.sink.error(
-                  error()
-                     .primary_title(tr!(lex_empty_char, what))
-                     .element(snippet_here_from!(self, start)),
-               );
+               self.diag(EmptyChar::new(what, span));
             }
 
             [seg] => {
                if let StrInner::Raw(str) = seg {
                   assert!(!str.is_empty());
-
                   if str.chars().count() != 1 {
-                     let span = self.span(start);
-
-                     let lit = self.sub(span);
-                     let primary = tr!(lex_long_char, what, lit);
-
-                     let diag = error()
-                        .primary_title(primary)
-                        .element(snippet_here!(self, span));
-
-                     self.sink.error(diag);
+                     self.diag(LongChar::new(what, lit, span));
                   }
                }
             }
 
-            _ => {
-               let span = self.span(start);
-
-               let primary = tr!(lex_long_char, what, lit = self.sub(span));
-
-               let diag = error()
-                  .primary_title(primary)
-                  .element(snippet_here!(self, span));
-
-               self.sink.error(diag);
-            }
+            _ => self.diag(LongChar::new(what, lit, span)),
          }
       }
 
@@ -525,18 +388,9 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
       let label = self.lex_ident();
 
       if self.peek() == Some('\'') {
-         let patch = Patch::new(self.pos..self.pos, " ");
-
          let span = (start..self.pos + 1).into();
-
-         let w = warning()
-            .primary_title(tr!(lex_looks_like_long_char, s = self.sub(span)))
-            .element(snippet_here!(self, span));
-         let h = help()
-            .secondary_title(tr!(help_inserting_space))
-            .element(snippet!(self).patch(patch));
-
-         self.sink.report([w, h], 0, 1);
+         let content = self.sub(span);
+         self.diag(LooksLikeLongChar::new(content, span));
       }
 
       label
@@ -545,9 +399,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
    fn lex_radix(&mut self, radix: u32) -> Option<Vec<u8>> {
       macro_rules! only_digit {
          () => {
-            error()
-               .primary_title(tr!(lex_only_digit))
-               .element(snippet_here!(self, self.pos - 1..self.pos))
+            OnlyDigit::new(self.span(self.pos - 1))
          };
       }
 
@@ -559,15 +411,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          let pos = self.pos;
          self.next();
 
-         self.sink.error(
-            error()
-               .primary_title(tr!(
-                  lex_expected_digit,
-                  radix = radix,
-                  found = first.escape_line()
-               ))
-               .element(snippet_here_from!(self, pos)),
-         );
+         let span = self.span(pos);
+         self.diag(ExpectedDigit::new(radix, first, span));
 
          return None;
       }
@@ -585,7 +430,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
 
          if c.is_ident_start() {
             if c == '_' && last_is_sep {
-               self.sink.error(only_digit!());
+               self.diag(only_digit!());
                return None;
             }
             break;
@@ -595,11 +440,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             let pos = self.pos;
 
             if last_is_sep {
-               self.sink.error(
-                  error()
-                     .primary_title(tr!(lex_two_adj_sep))
-                     .element(snippet_here!(self, pos - 1..pos + 1)),
-               );
+               let span = (pos - 1..pos + 1).into();
+               self.diag(TwoAdjSep::new(span));
 
                return None;
             }
@@ -613,7 +455,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
       }
 
       if last_is_sep {
-         self.sink.error(only_digit!());
+         self.diag(only_digit!());
          return None;
       }
 
@@ -637,21 +479,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          'B' | 'O' | 'X' | 'R' => {
             self.next();
 
-            let pos = self.pos;
-
-            let what = r.to_lowercase().to_string();
-            let second = tr!(help_should_be, what = format!("0{what}"));
-
-            let patch = Patch::new(pos - 1..pos, what);
-
-            let e = error()
-               .primary_title(tr!(lex_upper_radix))
-               .element(snippet_here_from!(self, pos - 2));
-            let h = help()
-               .secondary_title(second)
-               .element(snippet!(self).patch(patch));
-
-            self.sink.report([e, h], 1, 0);
+            let span = self.span(self.pos - 2);
+            self.diag(UpperRadix::new(r, span));
          }
          'b' | 'o' | 'x' | 'r' => _ = self.next(),
          _ => (),
@@ -662,18 +491,8 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
             let pos = self.pos;
             let r = self.advance()?;
             let Some(radix) = r.to_digit(36) else {
-               let ch = r.escape_line();
-               let primary = tr!(lex_not_radix_of, ch, radix = 36);
-
-               let e = error()
-                  .primary_title(primary)
-                  .element(snippet_here_from!(self, pos));
-
-               let h = tr!(help_digit_should_be, r = "z");
-               let h = help().secondary_title(h);
-               let h = Group::with_title(h);
-
-               self.sink.report([e, h], 1, 0);
+               let span = self.span(pos);
+               self.diag(NotRadixOf::new(r, 36, span));
 
                return None;
             };
@@ -903,20 +722,12 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
                break 'outer delim;
             }
 
-            let title = {
-               let ch = c.escape_line();
-               if c.is_stray() {
-                  tr!(lex_stray, ch)
-               } else {
-                  tr!(lex_unexpected, ch)
-               }
-            };
-
-            self.sink.error(
-               error()
-                  .primary_title(title)
-                  .element(snippet_here_from!(self, start)),
-            );
+            let span = self.span(start);
+            if c.is_stray() {
+               self.diag(Stray::new(c, span));
+            } else {
+               self.diag(Unexpected::new(c, span));
+            }
 
             return None;
          }
@@ -971,7 +782,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
    }
 }
 
-pub fn lex<'src>(src: &'src Source, sink: &mut DiagSink<'src>) -> Vec<Token> {
+pub fn lex(src: &Source, sink: &mut DiagSink) -> Vec<Token> {
    let lexer = Lexer { src, pos: 0, sink };
    lexer.lex_all()
 }

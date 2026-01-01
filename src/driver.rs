@@ -16,7 +16,7 @@ use crate::{
       tokentree::parse_token_tree,
    },
    tr,
-   utils::DiagSink,
+   utils::{DiagPrinter, DiagSink},
 };
 
 macro_rules! get_out {
@@ -58,12 +58,13 @@ impl Driver {
          show_recovery,
       } = args;
 
-      let mut sink = DiagSink::new();
+      let mut sink = DiagSink::default();
       let src = self.load(file)?;
 
       let tokens = lex(&src, &mut sink);
 
-      sink.print(show_recovery)?;
+      let printer = DiagPrinter::new(&src);
+      printer.print(sink, show_recovery)?;
 
       let mut wid = 0;
       for token in &tokens {
@@ -87,13 +88,14 @@ impl Driver {
          show_recovery,
       } = args;
 
-      let mut sink = DiagSink::new();
+      let mut sink = DiagSink::default();
       let src = self.load(file)?;
 
       let tokens = lex(&src, &mut sink);
-      let tt = parse_token_tree(&src, &tokens, &mut sink);
+      let tt = parse_token_tree(&tokens, &mut sink);
 
-      sink.print(show_recovery)?;
+      let printer = DiagPrinter::new(&src);
+      printer.print(sink, show_recovery)?;
 
       let out = get_out!(output);
       writeln!(out, "{tt}")?;

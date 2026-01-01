@@ -83,9 +83,10 @@ macro_rules! wlntr {
 
 #[macro_export]
 macro_rules! tre {
-   ($key:ident $(, $($rest:tt)+)?) => {
-      $crate::utils::escape_line(&$crate::tr!($key $(, $($rest)+)?))
-   };
+   ($key:ident $(, $($rest:tt)+)?) => {{
+      use $crate::utils::EscapeLine;
+      $crate::tr!($key $(, $($rest)+)?).escape_line()
+   }};
 }
 
 pub fn init_locale() -> bool {

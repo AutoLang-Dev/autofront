@@ -1,9 +1,6 @@
-use core::fmt;
-use std::fmt::{Display, Formatter};
+use std::fmt::Write;
 
-use fluent_i18n::{FluentValue, ToFluentValue};
 use unicode_ident::*;
-use unicode_width::UnicodeWidthChar;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Id {
@@ -29,8 +26,6 @@ pub trait AttrForLexing {
          _ => Id::None,
       }
    }
-
-   fn width(&self) -> usize;
 }
 
 impl AttrForLexing for char {
@@ -89,118 +84,43 @@ impl AttrForLexing for char {
    fn is_ident_continue(&self) -> bool {
       is_xid_continue(*self)
    }
-
-   fn width(&self) -> usize {
-      UnicodeWidthChar::width(*self).unwrap_or(0)
-   }
 }
 
-pub trait EscapeSourceExt {
-   type Wrapped;
-
-   fn escape_source(&self) -> EscapeSource<Self::Wrapped>;
+pub trait EscapeLine {
+   fn escape_line(&self) -> String;
 }
 
-pub struct EscapeSource<S> {
-   s: S,
-}
-
-impl EscapeSourceExt for char {
-   type Wrapped = char;
-
-   fn escape_source(&self) -> EscapeSource<Self> {
-      EscapeSource { s: *self }
-   }
-}
-
-impl<'a> EscapeSourceExt for &'a str {
-   type Wrapped = &'a str;
-
-   fn escape_source(&self) -> EscapeSource<Self> {
-      EscapeSource { s: self }
-   }
-}
-
-impl Display for EscapeSource<char> {
-   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-      let c = self.s;
-      if c.is_control() || AttrForLexing::width(&c) == 0 {
-         write!(f, "{}", c.escape_debug())
-      } else {
-         write!(f, "{c}")
+impl EscapeLine for char {
+   fn escape_line(&self) -> String {
+      let mut buf = String::new();
+      match self {
+         '\n' => write!(buf, "\\n"),
+         '\r' => write!(buf, "\\r"),
+         _ => write!(buf, "{self}"),
       }
+      .unwrap();
+      buf
    }
 }
 
-impl Display for EscapeSource<&str> {
-   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-      for c in self.s.chars() {
-         write!(f, "{}", c.escape_source())?
+impl EscapeLine for &str {
+   fn escape_line(&self) -> String {
+      let mut buf = String::new();
+      for c in self.chars() {
+         match c {
+            '\n' => write!(buf, "\\n"),
+            '\r' => write!(buf, "\\r"),
+            _ => write!(buf, "{c}"),
+         }
+         .unwrap();
       }
-      Ok(())
+      buf
    }
 }
 
-impl<T> ToFluentValue for EscapeSource<T>
-where
-   EscapeSource<T>: Display,
-{
-   fn to_fluent_value(&self) -> FluentValue<'static> {
-      FluentValue::String(format!("{self}").into())
-   }
-}
-
-pub trait EscapeLineExt {
-   type Wrapped;
-
-   fn escape_line(&self) -> EscapeLine<Self::Wrapped>;
-}
-
-pub struct EscapeLine<S> {
-   s: S,
-}
-
-impl EscapeLineExt for char {
-   type Wrapped = char;
-
-   fn escape_line(&self) -> EscapeLine<Self> {
-      EscapeLine { s: *self }
-   }
-}
-
-impl<'a> EscapeLineExt for &'a str {
-   type Wrapped = &'a str;
-
-   fn escape_line(&self) -> EscapeLine<Self> {
-      EscapeLine { s: self }
-   }
-}
-
-impl Display for EscapeLine<char> {
-   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-      let c = self.s;
-      match c {
-         '\n' => write!(f, "\\n"),
-         '\r' => write!(f, "\\r"),
-         _ => write!(f, "{c}"),
-      }
-   }
-}
-
-impl Display for EscapeLine<&str> {
-   fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
-      for c in self.s.chars() {
-         write!(f, "{}", c.escape_line())?
-      }
-      Ok(())
-   }
-}
-
-impl<T> ToFluentValue for EscapeLine<T>
-where
-   EscapeLine<T>: Display,
-{
-   fn to_fluent_value(&self) -> FluentValue<'static> {
-      FluentValue::String(format!("{self}").into())
+impl EscapeLine for String {
+   fn escape_line(&self) -> String {
+      let s = self as &str;
+      s.escape_line()
    }
 }
