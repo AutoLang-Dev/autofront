@@ -1,6 +1,6 @@
 use crate::utils::Span;
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Op {
    Dot,
    Colon,
@@ -51,7 +51,7 @@ pub enum Op {
    ShrEq,
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Escape {
    Char(char),
    Hex(u8),
@@ -78,7 +78,7 @@ impl From<Escape> for u8 {
    }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum CharInner {
    Char(char),
    Escape(Escape),
@@ -102,13 +102,13 @@ impl From<CharInner> for u8 {
    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StrInner {
    Raw(String),
    Escape(Escape),
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum StrContent {
    Line(String),
    Quoted(Vec<StrInner>),
@@ -136,7 +136,7 @@ impl From<StrContent> for Vec<u8> {
    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum IntLit {
    Dec(Vec<u8>),
    Bin(Vec<u8>),
@@ -170,13 +170,13 @@ impl Delimiter {
    }
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum DelimKind {
    Open,
    Close,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum TokenKind {
    Ident(String),
    Oper(Op),
