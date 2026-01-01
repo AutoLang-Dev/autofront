@@ -102,6 +102,14 @@ pub struct Group<'t> {
 }
 
 impl<'t> Group<'t> {
+   pub fn open(&self) -> TokenKind {
+      TokenKind::Delim(self.delim.open(), DelimKind::Open)
+   }
+
+   pub fn close(&self) -> TokenKind {
+      TokenKind::Delim(self.delim.open(), DelimKind::Open)
+   }
+
    pub fn span_open(&self) -> Span {
       self.span.span_open()
    }
