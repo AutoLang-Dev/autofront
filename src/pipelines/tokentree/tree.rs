@@ -1,5 +1,5 @@
 use crate::{
-   pipelines::lexer::{Delimiter, Token},
+   pipelines::lexer::{DelimKind, Delimiter, Token, TokenKind},
    utils::Span,
 };
 
