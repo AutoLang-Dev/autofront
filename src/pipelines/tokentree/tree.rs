@@ -110,6 +110,20 @@ impl<'t> Group<'t> {
       TokenKind::Delim(self.delim.open(), DelimKind::Open)
    }
 
+   pub fn token_open(&self) -> Token {
+      Token {
+         kind: self.open(),
+         span: self.span_open(),
+      }
+   }
+
+   pub fn token_close(&self) -> Token {
+      Token {
+         kind: self.close(),
+         span: self.span_close(),
+      }
+   }
+
    pub fn span_open(&self) -> Span {
       self.span.span_open()
    }
