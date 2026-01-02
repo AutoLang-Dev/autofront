@@ -12,24 +12,32 @@ pub enum GroupDelim {
 }
 
 impl GroupDelim {
-   pub fn open(self) -> char {
-      use GroupDelim::*;
+   pub fn open(self) -> Delimiter {
+      use {Delimiter::*, GroupDelim::*};
       match self {
-         Braces => '{',
-         Brackets => '[',
-         Parens => '(',
-         Mismatch(open, _) => open.open(),
+         Braces => Brace,
+         Brackets => Bracket,
+         Parens => Paren,
+         Mismatch(open, _) => open,
       }
    }
 
-   pub fn close(self) -> char {
-      use GroupDelim::*;
+   pub fn close(self) -> Delimiter {
+      use {Delimiter::*, GroupDelim::*};
       match self {
-         Braces => '}',
-         Brackets => ']',
-         Parens => ')',
-         Mismatch(_, close) => close.close(),
+         Braces => Brace,
+         Brackets => Bracket,
+         Parens => Paren,
+         Mismatch(_, close) => close,
       }
+   }
+
+   pub fn char_open(self) -> char {
+      self.open().open()
+   }
+
+   pub fn char_close(self) -> char {
+      self.close().close()
    }
 
    pub fn is_mismatch(self) -> bool {
@@ -94,6 +102,28 @@ pub struct Group<'t> {
 }
 
 impl<'t> Group<'t> {
+   pub fn open(&self) -> TokenKind {
+      TokenKind::Delim(self.delim.open(), DelimKind::Open)
+   }
+
+   pub fn close(&self) -> TokenKind {
+      TokenKind::Delim(self.delim.open(), DelimKind::Open)
+   }
+
+   pub fn token_open(&self) -> Token {
+      Token {
+         kind: self.open(),
+         span: self.span_open(),
+      }
+   }
+
+   pub fn token_close(&self) -> Token {
+      Token {
+         kind: self.close(),
+         span: self.span_close(),
+      }
+   }
+
    pub fn span_open(&self) -> Span {
       self.span.span_open()
    }

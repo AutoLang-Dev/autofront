@@ -41,7 +41,7 @@ impl TokenTreePrinter {
       self.lines.push(Line {
          indent: self.indent,
          span: format!("{}", group.span_open()),
-         token: render_delim(delim.open()),
+         token: render_delim(delim.char_open()),
       });
 
       self.indent += 2;
@@ -51,7 +51,7 @@ impl TokenTreePrinter {
       self.lines.push(Line {
          indent: self.indent,
          span: format!("{}", group.span_close()),
-         token: render_delim(delim.close()),
+         token: render_delim(delim.char_close()),
       });
    }
 
