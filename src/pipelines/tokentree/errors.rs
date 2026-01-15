@@ -82,21 +82,19 @@ impl Diagnostics for MismatchDelim {
 
       let close = open.close().to_string();
 
-      let diag = error()
-         .primary_title(tre!(tt_mismatch_delim))
-         .element(
-            src.snippet()
-               .annotation(
-                  AnnotationKind::Context
-                     .span(span.into())
-                     .label(tre!(open_delim)),
-               )
-               .annotation(
-                  AnnotationKind::Primary
-                     .span(close_span.into())
-                     .label(tre!(tt_expected_close, close)),
-               ),
-         );
+      let diag = error().primary_title(tre!(tt_mismatch_delim)).element(
+         src.snippet()
+            .annotation(
+               AnnotationKind::Context
+                  .span(span.into())
+                  .label(tre!(open_delim)),
+            )
+            .annotation(
+               AnnotationKind::Primary
+                  .span(close_span.into())
+                  .label(tre!(tt_expected_close, close)),
+            ),
+      );
 
       sink.error(diag);
    }

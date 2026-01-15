@@ -119,7 +119,7 @@ impl<'src> DiagPrinter<'src> {
          };
 
          if show_recovery {
-            eprintln!("{err}");
+            anstream::eprintln!("{err}");
             return Ok(());
          }
          return Err(err);

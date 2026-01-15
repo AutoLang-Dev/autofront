@@ -1,10 +1,10 @@
 [package]
 name = "autofront"
-version = "0.0.1"
-edition = "2024"
-homepage = "https://autolang.dev"
-repository = "https://github.com/AutoLang-Dev/autofront"
-license = "Apache-2.0"
+version.workspace = true
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [profile.release]
 opt-level = 3
@@ -19,7 +19,18 @@ unicode-normalization = "0.1.25"
 unicode-width = "0.2.2"
 annotate-snippets = "0.12.10"
 anstream = "0.6.21"
+num-bigint = "0.4.6"
+macros = { path = "macros" }
 
 [patch.crates-io]
 annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
 
+[workspace]
+members = ["macros/"]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2024"
+homepage = "https://autolang.dev"
+repository = "https://github.com/AutoLang-Dev/autofront"
+license = "Apache-2.0"

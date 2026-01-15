@@ -59,7 +59,7 @@ pub fn parse_args(args: &[String]) -> Result<Command> {
             Some(topic) => {
                let topic = topic.clone();
                match topic.as_str() {
-                  "help" | "version" | "lex" | "tt" => Some(topic),
+                  "help" | "version" | "lex" | "tt" | "parse" => Some(topic),
                   _ => Err(CliError::UnknownCommand(topic))?,
                }
             }
@@ -72,6 +72,7 @@ pub fn parse_args(args: &[String]) -> Result<Command> {
 
       "lex" => Ok(Command::Lex(DebugSubcommand::parse(args)?)),
       "tt" => Ok(Command::Tt(DebugSubcommand::parse(args)?)),
+      "parse" => Ok(Command::Parse(DebugSubcommand::parse(args)?)),
 
       other => Err(CliError::UnknownCommand(other.into())),
    }

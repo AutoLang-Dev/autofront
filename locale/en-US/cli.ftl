@@ -15,6 +15,7 @@ cli_help = Usage: autofront <COMMAND> [OPTIONS]
       version           Print version info
       lex <FILE>        Lexical analysis (unstable)
       tt <FILE>         Build TokenTree (unstable)
+      parse <FILE>      Parse file (unstable)
     
     Options:
       -o <FILE>         Write output to FILE
@@ -24,6 +25,7 @@ cli_help_help = help [<COMMAND>]: Display help message
 cli_help_version = version: Print version info
 cli_help_lex = lex <FILE>: Perform lexical analysis and print the results
 cli_help_tt = tt <FILE>: Build a TokenTree
+cli_help_parse = parse <FILE>: Parse file and print AST
 
 cli_file = file
 cli_option = option

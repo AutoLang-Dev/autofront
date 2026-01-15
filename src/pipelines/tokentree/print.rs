@@ -1,9 +1,12 @@
-use std::fmt::{self, Display, Formatter};
+use std::fmt::{self, Debug, Display, Formatter};
 
 use annotate_snippets::renderer::RgbColor;
 use unicode_width::UnicodeWidthStr;
 
-use crate::pipelines::tokentree::tree::{Group, TokenStream, TokenTree};
+use crate::pipelines::tokentree::{
+   GroupSpan,
+   tree::{Group, TokenStream, TokenTree},
+};
 
 struct Line {
    indent: usize,
@@ -15,6 +18,18 @@ struct TokenTreePrinter {
    span: usize,
    lines: Vec<Line>,
    indent: usize,
+}
+
+impl Display for GroupSpan {
+   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+      write!(f, "{}", self.span())
+   }
+}
+
+impl Debug for GroupSpan {
+   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+      write!(f, "{self}")
+   }
 }
 
 impl TokenTreePrinter {
@@ -56,7 +71,7 @@ impl TokenTreePrinter {
    }
 
    fn pretty_print_ts(&mut self, ts: &TokenStream) {
-      for tt in &ts.0 {
+      for tt in &ts.tt {
          self.pretty_print_tt(tt);
       }
    }
@@ -79,7 +94,7 @@ impl TokenTreePrinter {
    }
 }
 
-impl Display for TokenStream<'_> {
+impl Display for TokenStream {
    fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
       let mut printer = TokenTreePrinter::new();
       printer.pretty_print_ts(self);

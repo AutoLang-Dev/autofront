@@ -13,6 +13,7 @@ use crate::{
    cli::{Command, DebugSubcommand, parse_args, print_help},
    pipelines::{
       lexer::{Source, lex},
+      parser::parse,
       tokentree::parse_token_tree,
    },
    tr,
@@ -103,6 +104,30 @@ impl Driver {
       Ok(())
    }
 
+   fn parse(&mut self, args: DebugSubcommand) -> Result<(), Box<dyn Error>> {
+      let DebugSubcommand {
+         file,
+         output,
+         show_recovery,
+      } = args;
+
+      let mut sink = DiagSink::default();
+      let src = self.load(file)?;
+
+      let tokens = lex(&src, &mut sink);
+      let ts = parse_token_tree(&tokens, &mut sink);
+      let ast = parse(&ts, &mut sink);
+
+      let printer = DiagPrinter::new(&src);
+      printer.print(sink, show_recovery)?;
+
+      let output = output.unwrap_or_else(|| format!("{}.out", src.file));
+      let out = get_out!(Some(output));
+      writeln!(out, "{ast:#?}")?;
+
+      Ok(())
+   }
+
    fn drive(mut self) -> Result<(), Box<dyn Error>> {
       use Command::*;
 
@@ -115,6 +140,7 @@ impl Driver {
          Version => anstream::println!("{}", env!("CARGO_PKG_VERSION")),
          Lex(args) => self.lex(args)?,
          Tt(args) => self.tt(args)?,
+         Parse(args) => self.parse(args)?,
       }
 
       Ok(())

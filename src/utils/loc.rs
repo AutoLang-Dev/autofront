@@ -1,6 +1,9 @@
-use std::{fmt::Display, ops::Range};
+use std::{
+   fmt::{Debug, Display},
+   ops::Range,
+};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash)]
 pub struct Span {
    pub start: usize,
    pub end: usize,
@@ -9,6 +12,12 @@ pub struct Span {
 impl Span {
    pub fn span(self) -> Range<usize> {
       self.into()
+   }
+
+   pub fn merge(self, other: Span) -> Span {
+      let start = self.start.min(other.start);
+      let end = self.end.max(other.end);
+      Span { start, end }
    }
 }
 
@@ -30,5 +39,11 @@ impl From<Span> for Range<usize> {
 impl Display for Span {
    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
       write!(f, "{}..{}", self.start, self.end)
+   }
+}
+
+impl Debug for Span {
+   fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+      write!(f, "{self}")
    }
 }

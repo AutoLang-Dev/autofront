@@ -1,9 +1,22 @@
-#![allow(unused)]
+mod buffer;
+mod errors;
+mod print;
+mod span;
+mod syntax;
 
-pub struct Parser {}
+use crate::{
+   pipelines::{
+      parser::{
+         buffer::ParseBuffer,
+         syntax::{Ast, Root, token::Separated},
+      },
+      tokentree::TokenStream,
+   },
+   utils::DiagSink,
+};
 
-impl Parser {
-   pub fn new() -> Self {
-      todo!()
-   }
+pub fn parse(ts: &TokenStream, sink: &mut DiagSink) -> Ast {
+   let input = ParseBuffer::new(ts);
+   let root = input.parse(sink).unwrap_or(Root(Separated::new()));
+   Ast { root }
 }
