@@ -1,15 +1,14 @@
 use crate::{
    Tok, parse, peek,
-   pipelines::{
-      parser::{
-         ParseBuffer,
-         syntax::{parse::Result, pratt::Bp, *},
-      },
-      tokentree::{Group, GroupDelim, TokenTree as TT},
+   pipelines::parser::{
+      ParseBuffer,
+      syntax::{parse::Result, pratt::Bp, *},
    },
    pratt,
    utils::DiagSink,
 };
+use ::token::{Group, GroupDelim, TokenTree as TT};
+
 pub trait InfixParse: Sized {
    fn bp() -> (Bp, Bp);
    fn ready(input: &ParseBuffer) -> bool;

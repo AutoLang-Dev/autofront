@@ -1,8 +1,10 @@
 use std::fmt::{self, Display, Formatter};
 
-use annotate_snippets::renderer::RgbColor;
+// use annotate_snippets::renderer::RgbColor;
 
-use crate::pipelines::lexer::{
+use anstyle::RgbColor;
+
+use crate::token::{
    CharInner, DelimKind, Escape, IntLit, Op, StrContent, StrInner, Token, TokenKind,
 };
 

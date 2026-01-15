@@ -2,16 +2,14 @@ use macros::{AstPrint, Span};
 
 use crate::{
    Tok, define_token,
-   pipelines::{
-      lexer::{Op, TokenKind as TK},
-      parser::{
-         ParseBuffer,
-         errors::*,
-         syntax::parse::{Parse, ParseError, Result},
-      },
+   pipelines::parser::{
+      ParseBuffer,
+      errors::*,
+      syntax::parse::{Parse, ParseError, Result},
    },
    utils::DiagSink,
 };
+use token::{Op, TokenKind as TK};
 
 macro_rules! define_operator {
    ($op:ident) => {

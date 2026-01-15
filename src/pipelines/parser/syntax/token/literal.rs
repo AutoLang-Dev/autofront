@@ -4,18 +4,16 @@ use macros::{AstPrint, Span};
 use num_bigint::BigInt;
 
 use crate::{
-   pipelines::{
-      lexer::{CharInner, IntLit, StrContent, StrInner, TokenKind as TK},
-      parser::{
-         ParseBuffer,
-         errors::*,
-         print::AstPrint,
-         syntax::parse::{Parse, ParseError, Result},
-      },
+   pipelines::parser::{
+      ParseBuffer,
+      errors::*,
+      print::AstPrint,
+      syntax::parse::{Parse, ParseError, Result},
    },
    utils::DiagSink,
 };
 use common::span::Span;
+use token::{CharInner, IntLit, StrContent, StrInner, TokenKind as TK};
 
 #[derive(Debug, Clone, Span)]
 pub struct LitChar {

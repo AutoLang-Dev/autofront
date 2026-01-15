@@ -1,19 +1,17 @@
 use std::fmt::{self, Write};
 
 use crate::{
-   pipelines::{
-      lexer::TokenKind as TK,
-      parser::{
-         ParseBuffer,
-         errors::*,
-         print::AstPrint,
-         span::Spanned,
-         syntax::parse::{Parse, ParseError, Result},
-      },
+   pipelines::parser::{
+      ParseBuffer,
+      errors::*,
+      print::AstPrint,
+      span::Spanned,
+      syntax::parse::{Parse, ParseError, Result},
    },
    utils::DiagSink,
 };
 use common::span::Span;
+use token::TokenKind as TK;
 
 #[derive(Debug, Clone)]
 pub struct Ident {

@@ -86,6 +86,7 @@ dependencies = [
  "fluent-i18n",
  "macros",
  "num-bigint",
+ "token",
  "unicode-ident",
  "unicode-normalization",
  "unicode-width",
@@ -537,6 +538,15 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
+
+[[package]]
+name = "token"
+version = "0.0.1"
+dependencies = [
+ "anstyle",
+ "common",
+ "unicode-width",
+]
 
 [[package]]
 name = "type-map"

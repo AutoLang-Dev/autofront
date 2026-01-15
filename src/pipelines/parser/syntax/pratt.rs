@@ -5,22 +5,19 @@ pub use {infix::*, prefix::*};
 
 use crate::{
    Tok, parse, peek,
-   pipelines::{
-      lexer::TokenKind as TK,
-      parser::{
-         ParseBuffer,
-         errors::*,
-         print::AstPrint,
-         span::Spanned,
-         syntax::{
-            parse::{ParseError, Result},
-            *,
-         },
+   pipelines::parser::{
+      ParseBuffer,
+      errors::*,
+      print::AstPrint,
+      span::Spanned,
+      syntax::{
+         parse::{ParseError, Result},
+         *,
       },
-      tokentree::{GroupDelim, TokenTree as TT},
    },
    utils::DiagSink,
 };
+use ::token::{GroupDelim, TokenKind as TK, TokenTree as TT};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Bp {

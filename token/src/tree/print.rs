@@ -1,9 +1,9 @@
 use std::fmt::{self, Debug, Display, Formatter};
 
-use annotate_snippets::renderer::RgbColor;
+use anstyle::RgbColor;
 use unicode_width::UnicodeWidthStr;
 
-use crate::pipelines::tokentree::{
+use crate::{
    GroupSpan,
    tree::{Group, TokenStream, TokenTree},
 };

@@ -3,20 +3,17 @@ use std::fmt::{self, Write};
 use macros::Span;
 
 use crate::{
-   pipelines::{
-      lexer::Delimiter,
-      parser::{
-         ParseBuffer,
-         errors::{UnexpectedGroup, UnexpectedToken},
-         print::AstPrint,
-         span::Spanned,
-         syntax::parse::{Parse, ParseError, Result},
-      },
-      tokentree::{GroupSpan, TokenTree as TT},
+   pipelines::parser::{
+      ParseBuffer,
+      errors::{UnexpectedGroup, UnexpectedToken},
+      print::AstPrint,
+      span::Spanned,
+      syntax::parse::{Parse, ParseError, Result},
    },
    utils::DiagSink,
 };
 use common::span::Span;
+use token::{Delimiter, GroupSpan, TokenTree as TT};
 
 #[derive(Debug, Clone)]
 pub struct Separated<T, S> {

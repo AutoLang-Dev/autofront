@@ -1,11 +1,9 @@
-use crate::pipelines::{
-   parser::syntax::{
-      CaseArm, ExprBlock, ExprBreak, ExprCase, ExprCont, ExprFor, ExprIf, ExprLit, ExprReturn,
-      ExprWhile, FieldValue, FnSign, LocalDef, Param,
-   },
-   tokentree::GroupSpan,
+use crate::pipelines::parser::syntax::{
+   CaseArm, ExprBlock, ExprBreak, ExprCase, ExprCont, ExprFor, ExprIf, ExprLit, ExprReturn,
+   ExprWhile, FieldValue, FnSign, LocalDef, Param,
 };
 use common::span::Span;
+use token::GroupSpan;
 
 pub trait Spanned {
    fn span(&self) -> Span;

@@ -1,4 +1,6 @@
-use crate::pipelines::lexer::{DelimKind, Delimiter, Token, TokenKind};
+mod print;
+
+use crate::{DelimKind, Delimiter, Token, TokenKind};
 use common::span::Span;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

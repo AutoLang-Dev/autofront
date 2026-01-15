@@ -1,6 +1,4 @@
 mod errors;
-mod print;
-mod token;
 
 use annotate_snippets::normalize_untrusted_str;
 use unicode_normalization::UnicodeNormalization;
@@ -11,7 +9,7 @@ use crate::{
 };
 use common::{source::Source, span::Span};
 
-pub use token::*;
+use token::*;
 use {StrContent::*, TokenKind::*};
 
 pub struct Lexer<'src, 'sink> {

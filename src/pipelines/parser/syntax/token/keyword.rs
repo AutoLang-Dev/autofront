@@ -1,14 +1,12 @@
 use crate::{
    define_token,
-   pipelines::{
-      lexer::TokenKind as TK,
-      parser::{
-         ParseBuffer,
-         syntax::parse::{Parse, Result},
-      },
+   pipelines::parser::{
+      ParseBuffer,
+      syntax::parse::{Parse, Result},
    },
    utils::DiagSink,
 };
+use token::TokenKind as TK;
 
 macro_rules! define_ident {
    ($id:ident, $tok:expr) => {

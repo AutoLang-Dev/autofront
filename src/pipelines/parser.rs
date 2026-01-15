@@ -5,15 +5,13 @@ mod span;
 mod syntax;
 
 use crate::{
-   pipelines::{
-      parser::{
-         buffer::ParseBuffer,
-         syntax::{Ast, Root, token::Separated},
-      },
-      tokentree::TokenStream,
+   pipelines::parser::{
+      buffer::ParseBuffer,
+      syntax::{Ast, Root, token::Separated},
    },
    utils::DiagSink,
 };
+use token::TokenStream;
 
 pub fn parse(ts: &TokenStream, sink: &mut DiagSink) -> Ast {
    let input = ParseBuffer::new(ts);

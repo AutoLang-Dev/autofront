@@ -1,16 +1,13 @@
 use std::{cell::Cell, fmt::Debug};
 
 use crate::{
-   pipelines::{
-      lexer::{Delimiter, Token, TokenKind as TK},
-      parser::{
-         errors::*,
-         syntax::parse::{Parse, ParseError, Result},
-      },
-      tokentree::{Group, GroupDelim, TokenStream, TokenTree as TT},
+   pipelines::parser::{
+      errors::*,
+      syntax::parse::{Parse, ParseError, Result},
    },
    utils::{DiagSink, DiagSnapshot},
 };
+use token::{Delimiter, Group, GroupDelim, Token, TokenKind as TK, TokenStream, TokenTree as TT};
 
 #[derive(Debug, Clone, Copy)]
 pub struct ParseSnapshot(usize, DiagSnapshot);

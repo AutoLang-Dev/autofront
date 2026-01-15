@@ -1,3 +1,5 @@
+mod print;
+
 use common::span::Span;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]

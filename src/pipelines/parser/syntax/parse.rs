@@ -1,13 +1,10 @@
 use crate::{
    Tok,
-   pipelines::{
-      lexer::{Op, TokenKind as TK},
-      parser::{ParseBuffer, errors::UnexpectedToken, syntax::*},
-      tokentree::{GroupDelim, TokenTree as TT},
-   },
+   pipelines::parser::{ParseBuffer, errors::UnexpectedToken, syntax::*},
    pratt,
    utils::DiagSink,
 };
+use ::token::{GroupDelim, Op, TokenKind as TK, TokenTree as TT};
 
 #[macro_export]
 macro_rules! parse {
