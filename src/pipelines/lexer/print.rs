@@ -155,6 +155,7 @@ impl Display for TokenKind {
             write!(f, "\"")
          }
          Int(i) => write!(f, "{}", i),
+         Bool(flag) => write!(f, "{}", flag),
          Suffix(s) => write!(f, "{}", s),
          Delim(delim, kind) => {
             let ch = match kind {
@@ -182,6 +183,7 @@ impl Display for Token {
             Byte(_) => (206, 145, 120),
             Bytes(_) => (206, 145, 120),
             Int(_) => (181, 206, 168),
+            Bool(_) => (78, 201, 176),
             Suffix(_) => (134, 198, 145),
             Delim(_, _) => (212, 212, 212),
             Error(_) => (244, 71, 71),

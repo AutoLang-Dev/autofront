@@ -15,6 +15,7 @@ cli_help = 用法：autofront <命令> [选项]
       version         显示版本
       lex <文件>      词法分析（不稳定）
       tt <文件>       构建 TokenTree（不稳定）
+      parse <文件>    解析文件（不稳定）
 
     选项：
       -o <文件>       写入输出到文件
@@ -23,7 +24,8 @@ cli_help = 用法：autofront <命令> [选项]
 cli_help_help = help [<命令>]：显示帮助信息
 cli_help_version = version：显示版本信息
 cli_help_lex = lex <文件>：对文件进行词法分析并打印结果
-cli_help_tt = tt <文件>：构建 ToenTree
+cli_help_tt = tt <文件>：构建 TokenTree
+cli_help_parse = parse <文件>：解析文件并打印 AST
 
 cli_file = 文件
 cli_option = 选项

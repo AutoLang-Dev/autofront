@@ -65,7 +65,7 @@ impl From<(Delimiter, Delimiter)> for GroupDelim {
    }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub struct GroupSpan {
    pub open: usize,
    pub close: usize,
@@ -80,7 +80,7 @@ impl GroupSpan {
       GroupSpan::new(open.start, close.start)
    }
 
-   #[allow(unused)]
+   #[allow(dead_code)]
    pub fn span(&self) -> Span {
       (self.open..self.close + 1).into()
    }
@@ -95,19 +95,19 @@ impl GroupSpan {
 }
 
 #[derive(Debug, Clone)]
-pub struct Group<'t> {
+pub struct Group {
    pub delim: GroupDelim,
    pub span: GroupSpan,
-   pub stream: TokenStream<'t>,
+   pub stream: TokenStream,
 }
 
-impl<'t> Group<'t> {
+impl Group {
    pub fn open(&self) -> TokenKind {
       TokenKind::Delim(self.delim.open(), DelimKind::Open)
    }
 
    pub fn close(&self) -> TokenKind {
-      TokenKind::Delim(self.delim.open(), DelimKind::Open)
+      TokenKind::Delim(self.delim.open(), DelimKind::Close)
    }
 
    pub fn token_open(&self) -> Token {
@@ -134,10 +134,40 @@ impl<'t> Group<'t> {
 }
 
 #[derive(Debug, Clone)]
-pub enum TokenTree<'t> {
-   Token(&'t Token),
-   Delimited(Group<'t>),
+pub enum TokenTree {
+   Token(Token),
+   Delimited(Group),
+}
+
+impl TokenTree {
+   pub fn span(&self) -> Span {
+      match self {
+         Self::Token(tok) => tok.span,
+         Self::Delimited(group) => group.span.span(),
+      }
+   }
+
+   #[allow(dead_code)]
+   pub fn is_token_of(&self, kind: &TokenKind) -> bool {
+      match self {
+         Self::Token(tok) => &tok.kind == kind,
+         _ => false,
+      }
+   }
 }
 
 #[derive(Debug, Clone)]
-pub struct TokenStream<'t>(pub Box<[TokenTree<'t>]>);
+pub struct TokenStream {
+   pub tt: Box<[TokenTree]>,
+   pub span: Span,
+}
+
+impl TokenStream {
+   pub fn len(&self) -> usize {
+      self.tt.len()
+   }
+
+   pub fn get(&self, index: usize) -> Option<&TokenTree> {
+      self.tt.get(index)
+   }
+}

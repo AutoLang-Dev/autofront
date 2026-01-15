@@ -7,6 +7,7 @@ pub fn print_help(topic: Option<&str>) -> Result<(), CliError> {
       Some("version") => print_version_help(),
       Some("lex") => print_lex_help(),
       Some("tt") => print_tt_help(),
+      Some("parse") => print_parse_help(),
       Some(cmd) => {
          return Err(CliError::UnknownCommand(cmd.to_string()));
       }
@@ -32,4 +33,8 @@ fn print_lex_help() {
 
 fn print_tt_help() {
    anstream::println!("{}", tr!(cli_help_tt));
+}
+
+fn print_parse_help() {
+   anstream::println!("{}", tr!(cli_help_parse));
 }

@@ -7,9 +7,9 @@ use crate::{
       lexer::{DelimKind, Token, TokenKind},
       tokentree::errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup},
    },
-   utils::{DiagSink, Diagnostics},
+   utils::{DiagSink, Diagnostics, Span},
 };
-pub use tree::{Group, GroupSpan, TokenStream, TokenTree};
+pub use tree::*;
 
 #[derive(Debug)]
 struct Parser<'sink, 'tokens> {
@@ -32,7 +32,7 @@ impl<'sink, 'tokens> Parser<'sink, 'tokens> {
       self.tokens.split_first().map(|x| x.0)
    }
 
-   pub fn parse(&mut self) -> TokenStream<'tokens> {
+   fn parse_impl(&mut self, start: usize) -> TokenStream {
       use DelimKind::*;
       use TokenKind::Delim;
 
@@ -42,18 +42,21 @@ impl<'sink, 'tokens> Parser<'sink, 'tokens> {
          let token = self.tokens.split_first().unwrap().0;
          let last = self.tokens.split_last().unwrap().0;
 
-         let after_last = last.span.end;
-
          match token.kind {
             Delim(open, Open) => {
                self.next();
-               let ts = self.parse();
+               let ts = self.parse_impl(token.span.end);
 
                let Some(close) = self.current() else {
                   let span = token.span;
-                  self.diag(UnclosedGroup::new(open, span, after_last));
+                  let end = last.span.end;
 
-                  return TokenStream(stream.into_boxed_slice());
+                  self.diag(UnclosedGroup::new(open, span, end));
+
+                  return TokenStream {
+                     tt: stream.into_boxed_slice(),
+                     span: Span { start, end },
+                  };
                };
 
                let close_span = close.span;
@@ -77,20 +80,29 @@ impl<'sink, 'tokens> Parser<'sink, 'tokens> {
             }
             Delim(_, Close) => break,
             _ => {
-               stream.push(TokenTree::Token(token));
+               stream.push(TokenTree::Token(token.clone()));
                self.next();
             }
          }
       }
 
-      TokenStream(stream.into_boxed_slice())
+      let end = match stream.last() {
+         Some(last) => last.span().end,
+         None => start,
+      };
+
+      TokenStream {
+         tt: stream.into_boxed_slice(),
+         span: Span { start, end },
+      }
+   }
+
+   pub fn parse(&mut self) -> TokenStream {
+      self.parse_impl(0)
    }
 }
 
-pub fn parse_token_tree<'token>(
-   tokens: &'token [Token],
-   sink: &mut DiagSink,
-) -> TokenStream<'token> {
+pub fn parse_token_tree(tokens: &[Token], sink: &mut DiagSink) -> TokenStream {
    let mut parser = Parser { sink, tokens };
    let ts = parser.parse();
 

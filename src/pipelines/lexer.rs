@@ -702,7 +702,14 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
          _ if self.first_oper() => Oper(self.lex_oper()?),
          _ if self.first_bytes() => Bytes(self.lex_bytes()?),
          _ if self.first_byte() => Byte(self.lex_byte()?),
-         _ if self.first_ident() => Ident(self.lex_ident()),
+         _ if self.first_ident() => {
+            let ident = self.lex_ident();
+            match ident.as_str() {
+               "true" => Bool(true),
+               "false" => Bool(false),
+               _ => Ident(ident),
+            }
+         }
          _ => 'outer: {
             let c = self.next().unwrap();
 

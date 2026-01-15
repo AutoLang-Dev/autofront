@@ -186,6 +186,7 @@ pub enum TokenKind {
    Byte(u8),
    Bytes(Vec<u8>),
    Int(IntLit),
+   Bool(bool),
    Suffix(String),
    Delim(Delimiter, DelimKind),
    Error(String),
@@ -194,7 +195,10 @@ pub enum TokenKind {
 impl TokenKind {
    pub fn is_literal(&self) -> bool {
       use TokenKind::*;
-      matches!(self, Char(_) | Str(_) | Byte(_) | Bytes(_) | Int(_))
+      matches!(
+         self,
+         Char(_) | Str(_) | Byte(_) | Bytes(_) | Int(_) | Bool(_)
+      )
    }
 }
 
