@@ -1,7 +1,5 @@
-use crate::{
-   pipelines::lexer::{DelimKind, Delimiter, Token, TokenKind},
-   utils::Span,
-};
+use crate::pipelines::lexer::{DelimKind, Delimiter, Token, TokenKind};
+use common::span::Span;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum GroupDelim {

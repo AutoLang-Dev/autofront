@@ -6,10 +6,11 @@ use std::{
 };
 
 use annotate_snippets::{
-   Annotation, AnnotationKind, Group, Level, Renderer, Report, renderer::DecorStyle,
+   Annotation, AnnotationKind, Group, Level, Renderer, Report, Snippet, renderer::DecorStyle,
 };
 
-use crate::{eplntr, pipelines::lexer::Source, tr, tre, utils::Span, wtr};
+use crate::{eplntr, tr, tre, wtr};
+use common::{source::Source, span::Span};
 
 #[derive(Debug)]
 pub struct CompilationError {
@@ -166,7 +167,17 @@ pub fn here(span: Span) -> Annotation<'static> {
 #[macro_export]
 macro_rules! annotation_here {
    ($src:expr, $span:expr) => {{
-      use $crate::utils::here;
+      use $crate::utils::{SourceSnippet, here};
       $src.snippet().annotation(here($span))
    }};
+}
+
+pub trait SourceSnippet {
+   fn snippet<T: Clone>(&self) -> Snippet<'_, T>;
+}
+
+impl SourceSnippet for Source {
+   fn snippet<T: Clone>(&self) -> Snippet<'_, T> {
+      Snippet::source(&self.code).path(&self.file)
+   }
 }

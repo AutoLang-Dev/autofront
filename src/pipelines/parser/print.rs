@@ -2,7 +2,8 @@ use std::fmt::{self, Debug, Formatter, Write};
 
 use num_bigint::BigInt;
 
-use crate::{pipelines::parser::syntax::*, utils::Span};
+use crate::pipelines::parser::syntax::*;
+use common::span::Span;
 
 pub trait AstPrint: Debug {
    fn print(&self, f: &mut impl Write) -> fmt::Result {

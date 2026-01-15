@@ -1,4 +1,4 @@
-use crate::utils::Span;
+use common::span::Span;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Op {

@@ -7,8 +7,9 @@ use crate::{
       lexer::{DelimKind, Token, TokenKind},
       tokentree::errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup},
    },
-   utils::{DiagSink, Diagnostics, Span},
+   utils::{DiagSink, Diagnostics},
 };
+use common::span::Span;
 pub use tree::*;
 
 #[derive(Debug)]

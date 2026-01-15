@@ -14,8 +14,9 @@ use crate::{
       },
       tokentree::{GroupSpan, TokenTree as TT},
    },
-   utils::{DiagSink, Span},
+   utils::DiagSink,
 };
+use common::span::Span;
 
 #[derive(Debug, Clone)]
 pub struct Separated<T, S> {

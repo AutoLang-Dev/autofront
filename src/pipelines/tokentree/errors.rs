@@ -2,10 +2,11 @@ use annotate_snippets::AnnotationKind;
 
 use crate::{
    annotation_here,
-   pipelines::lexer::{Delimiter, Source},
+   pipelines::lexer::Delimiter,
    tre,
-   utils::{DiagPrinter, Diagnostics, Span, error},
+   utils::{DiagPrinter, Diagnostics, SourceSnippet, error},
 };
+use common::{source::Source, span::Span};
 
 #[derive(Debug, Clone)]
 pub struct UnclosedGroup {

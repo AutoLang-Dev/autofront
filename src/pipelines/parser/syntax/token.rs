@@ -13,7 +13,7 @@ macro_rules! define_token {
    ($name:ident) => {
       #[derive(Debug, Clone, macros::Span)]
       pub struct $name {
-         pub span: $crate::utils::Span,
+         pub span: common::span::Span,
       }
 
       impl $crate::pipelines::parser::print::AstPrint for $name {

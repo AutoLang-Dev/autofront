@@ -2,13 +2,11 @@ use annotate_snippets::Group;
 
 use crate::{
    annotation_here,
-   pipelines::{
-      lexer::{Source, Token},
-      tokentree::GroupDelim,
-   },
+   pipelines::{lexer::Token, tokentree::GroupDelim},
    tre,
-   utils::{DiagPrinter, Diagnostics, Span, error},
+   utils::{DiagPrinter, Diagnostics, error},
 };
+use common::{source::Source, span::Span};
 
 #[derive(Debug, Clone)]
 pub struct UnexpectedEnd {

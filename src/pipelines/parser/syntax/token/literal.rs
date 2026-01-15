@@ -13,8 +13,9 @@ use crate::{
          syntax::parse::{Parse, ParseError, Result},
       },
    },
-   utils::{DiagSink, Span},
+   utils::DiagSink,
 };
+use common::span::Span;
 
 #[derive(Debug, Clone, Span)]
 pub struct LitChar {

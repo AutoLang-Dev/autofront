@@ -7,9 +7,10 @@ use crate::{
    annotation_here,
    pipelines::lexer::Source,
    tre,
-   utils::{DiagPrinter, Diagnostics, Span, error, help, warning},
+   utils::{DiagPrinter, Diagnostics, SourceSnippet, error, help, warning},
    wtr,
 };
+use common::span::Span;
 
 fn to_radix(radix: u32) -> u8 {
    assert!((2..=36).contains(&radix));

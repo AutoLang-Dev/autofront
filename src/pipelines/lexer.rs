@@ -2,32 +2,17 @@ mod errors;
 mod print;
 mod token;
 
-use annotate_snippets::{Snippet, normalize_untrusted_str};
+use annotate_snippets::normalize_untrusted_str;
 use unicode_normalization::UnicodeNormalization;
 
 use crate::{
    pipelines::lexer::errors::*,
-   utils::{AttrForLexing, DiagSink, Diagnostics, Span},
+   utils::{AttrForLexing, DiagSink, Diagnostics},
 };
+use common::{source::Source, span::Span};
 
 pub use token::*;
 use {StrContent::*, TokenKind::*};
-
-#[derive(Debug, Clone)]
-pub struct Source {
-   pub code: String,
-   pub file: String,
-}
-
-impl Source {
-   pub fn slice(&self, span: Span) -> &str {
-      &self.code[span.span()]
-   }
-
-   pub fn snippet<T: Clone>(&self) -> Snippet<'_, T> {
-      Snippet::source(&self.code).path(&self.file)
-   }
-}
 
 pub struct Lexer<'src, 'sink> {
    pub src: &'src Source,

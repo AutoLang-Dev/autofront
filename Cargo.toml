@@ -20,13 +20,14 @@ unicode-width = "0.2.2"
 annotate-snippets = "0.12.10"
 anstream = "0.6.21"
 num-bigint = "0.4.6"
+common = { path = "common" }
 macros = { path = "macros" }
 
 [patch.crates-io]
 annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
 
 [workspace]
-members = ["macros/"]
+members = ["common/", "macros/"]
 
 [workspace.package]
 version = "0.0.1"

@@ -27,7 +27,7 @@ impl Names {
          DiagSink: quote! { crate::utils::DiagSink },
          AstPrint: quote! { #ns::print::AstPrint },
          Spanned: quote! { #ns::span::Spanned },
-         Span: quote! { crate::utils::Span },
+         Span: quote! { common::span::Span },
          Error: quote! { #ns::syntax::token::Error },
       }
    }
