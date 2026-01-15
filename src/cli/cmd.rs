@@ -1,6 +1,6 @@
 use std::{error::Error, fmt::Display};
 
-use crate::wtr;
+use locale::wtr;
 
 #[derive(Debug, Clone)]
 pub struct DebugSubcommand {

@@ -5,12 +5,12 @@ mod utils;
 
 use std::process::ExitCode;
 
-use {driver::Driver, utils::init_locale};
+use driver::Driver;
 
-fluent_i18n::i18n!("locale", fallback = "en-US");
+locale::i18n!("locale", fallback = "en-US");
 
 fn main() -> ExitCode {
-   match init_locale() {
+   match locale::init_locale() {
       false => ExitCode::FAILURE,
       true => Driver::new().run(),
    }

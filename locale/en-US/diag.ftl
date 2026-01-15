@@ -1,5 +1,3 @@
-bad_locale = bad locale: { $err }
-
 todo = todo
 
 diag_print_fail = failed to print diagnostic: {$msg}

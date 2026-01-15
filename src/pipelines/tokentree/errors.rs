@@ -1,10 +1,11 @@
 use annotate_snippets::AnnotationKind;
 
 use crate::{
-   annotation_here, tre,
+   annotation_here,
    utils::{DiagPrinter, Diagnostics, SourceSnippet, error},
 };
 use common::{source::Source, span::Span};
+use locale::tre;
 use token::Delimiter;
 
 #[derive(Debug, Clone)]

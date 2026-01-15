@@ -1,10 +1,8 @@
-use crate::{
-   cli::{
-      DebugSubcommand,
-      cmd::{CliError, Command, Result},
-   },
-   tr,
+use crate::cli::{
+   DebugSubcommand,
+   cmd::{CliError, Command, Result},
 };
+use locale::tr;
 
 impl DebugSubcommand {
    fn parse(args: &[String]) -> Result<DebugSubcommand> {

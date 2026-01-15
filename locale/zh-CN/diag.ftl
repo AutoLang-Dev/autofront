@@ -1,5 +1,3 @@
-bad_locale = 错误的语言代码：{ $err }
-
 todo = 等待实现
 
 diag_print_fail = 诊断打印失败：{$msg}

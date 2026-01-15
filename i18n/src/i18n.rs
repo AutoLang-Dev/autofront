@@ -5,7 +5,7 @@ use fluent_i18n::set_locale;
 #[macro_export]
 macro_rules! tr {
    ($key:ident $(,)?) => {{
-      fluent_i18n::t!(stringify!($key))
+      $crate::__t!(stringify!($key))
    }};
 
    ($key:ident, $($rest:tt)+) => {{
@@ -13,11 +13,11 @@ macro_rules! tr {
    }};
 
    (@munch $key:expr, [ $($items:tt)* ] ; ) => {{
-      fluent_i18n::t!($key, { $($items)* })
+      $crate::__t!($key, { $($items)* })
    }};
 
    (@munch $key:expr, [ $($items:tt)* ] ; ,) => {{
-      fluent_i18n::t!($key, { $($items)* })
+      $crate::__t!($key, { $($items)* })
    }};
 
    (@munch $key:expr, [ $($items:tt)* ] ; $name:ident = $value:expr , $($rest:tt)*) => {
@@ -42,28 +42,28 @@ macro_rules! tr {
 #[macro_export]
 macro_rules! eptr {
    ($key:ident $(, $($rest:tt)+)?) => {
-      anstream::eprint!("{}", $crate::tr!($key $(, $($rest)+)?))
+      $crate::__anstream::eprint!("{}", $crate::tr!($key $(, $($rest)+)?))
    };
 }
 
 #[macro_export]
 macro_rules! eplntr {
    ($key:ident $(, $($rest:tt)+)?) => {
-      anstream::eprintln!("{}", $crate::tr!($key $(, $($rest)+)?))
+      $crate::__anstream::eprintln!("{}", $crate::tr!($key $(, $($rest)+)?))
    };
 }
 
 #[macro_export]
 macro_rules! ptr {
    ($key:ident $(, $($rest:tt)+)?) => {
-      anstream::print!("{}", $crate::tr!($key $(, $($rest)+)?))
+      $crate::__anstream::print!("{}", $crate::tr!($key $(, $($rest)+)?))
    };
 }
 
 #[macro_export]
 macro_rules! plntr {
    ($key:ident $(, $($rest:tt)+)?) => {
-      anstream::println!("{}", $crate::tr!($key $(, $($rest)+)?))
+      $crate::__anstream::println!("{}", $crate::tr!($key $(, $($rest)+)?))
    };
 }
 
@@ -84,8 +84,22 @@ macro_rules! wlntr {
 #[macro_export]
 macro_rules! tre {
    ($key:ident $(, $($rest:tt)+)?) => {{
-      use $crate::utils::EscapeLine;
-      $crate::tr!($key $(, $($rest)+)?).escape_line()
+      use std::fmt::Write;
+
+      let s = $crate::tr!($key $(, $($rest)+)?);
+
+      let mut buf = std::string::String::new();
+
+      for c in s.chars() {
+         match c {
+            '\n' => write!(buf, "\\n"),
+            '\r' => write!(buf, "\\r"),
+            _ => write!(buf, "{c}"),
+         }
+         .unwrap();
+      }
+
+      buf
    }};
 }
 

@@ -6,11 +6,10 @@ use fluent_i18n::ToFluentValue;
 use crate::{
    annotation_here,
    pipelines::lexer::Source,
-   tre,
    utils::{DiagPrinter, Diagnostics, SourceSnippet, error, help, warning},
-   wtr,
 };
 use common::span::Span;
+use locale::{tre, wtr};
 
 fn to_radix(radix: u32) -> u8 {
    assert!((2..=36).contains(&radix));

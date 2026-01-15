@@ -1,10 +1,11 @@
 use annotate_snippets::Group;
 
 use crate::{
-   annotation_here, tre,
+   annotation_here,
    utils::{DiagPrinter, Diagnostics, error},
 };
 use common::{source::Source, span::Span};
+use locale::tre;
 use token::{GroupDelim, Token};
 
 #[derive(Debug, Clone)]

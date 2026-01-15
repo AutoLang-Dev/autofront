@@ -1,4 +1,5 @@
-use crate::{cli::cmd::CliError, tr};
+use crate::cli::cmd::CliError;
+use locale::tr;
 
 pub fn print_help(topic: Option<&str>) -> Result<(), CliError> {
    match topic {

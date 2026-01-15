@@ -9,8 +9,8 @@ use annotate_snippets::{
    Annotation, AnnotationKind, Group, Level, Renderer, Report, Snippet, renderer::DecorStyle,
 };
 
-use crate::{eplntr, tr, tre, wtr};
 use common::{source::Source, span::Span};
+use locale::{eplntr, tr, tre, wtr};
 
 #[derive(Debug)]
 pub struct CompilationError {

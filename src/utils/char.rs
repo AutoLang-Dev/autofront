@@ -1,5 +1,3 @@
-use std::fmt::Write;
-
 use unicode_ident::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -83,44 +81,5 @@ impl AttrForLexing for char {
 
    fn is_ident_continue(&self) -> bool {
       is_xid_continue(*self)
-   }
-}
-
-pub trait EscapeLine {
-   fn escape_line(&self) -> String;
-}
-
-impl EscapeLine for char {
-   fn escape_line(&self) -> String {
-      let mut buf = String::new();
-      match self {
-         '\n' => write!(buf, "\\n"),
-         '\r' => write!(buf, "\\r"),
-         _ => write!(buf, "{self}"),
-      }
-      .unwrap();
-      buf
-   }
-}
-
-impl EscapeLine for &str {
-   fn escape_line(&self) -> String {
-      let mut buf = String::new();
-      for c in self.chars() {
-         match c {
-            '\n' => write!(buf, "\\n"),
-            '\r' => write!(buf, "\\r"),
-            _ => write!(buf, "{c}"),
-         }
-         .unwrap();
-      }
-      buf
-   }
-}
-
-impl EscapeLine for String {
-   fn escape_line(&self) -> String {
-      let s = self as &str;
-      s.escape_line()
    }
 }

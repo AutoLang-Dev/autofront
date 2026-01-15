@@ -84,6 +84,7 @@ dependencies = [
  "anstream",
  "common",
  "fluent-i18n",
+ "locale",
  "macros",
  "num-bigint",
  "token",
@@ -295,6 +296,14 @@ name = "libc"
 version = "0.2.178"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37c93d8daa9d8a012fd8ab92f088405fb202ea0b6ab73ee2482ae66af4f42091"
+
+[[package]]
+name = "locale"
+version = "0.0.1"
+dependencies = [
+ "anstream",
+ "fluent-i18n",
+]
 
 [[package]]
 name = "lock_api"

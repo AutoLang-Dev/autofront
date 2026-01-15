@@ -21,6 +21,7 @@ annotate-snippets = "0.12.10"
 anstream = "0.6.21"
 num-bigint = "0.4.6"
 common = { path = "common" }
+locale = { path = "i18n" }
 token = { path = "token" }
 macros = { path = "macros" }
 
@@ -28,7 +29,7 @@ macros = { path = "macros" }
 annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
 
 [workspace]
-members = ["common/", "token/", "macros/"]
+members = ["common/", "i18n/", "token/", "macros/"]
 
 [workspace.package]
 version = "0.0.1"
