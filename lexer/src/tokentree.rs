@@ -1,6 +1,7 @@
 mod errors;
 
-use crate::pipelines::tokentree::errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup};
+use errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup};
+
 use common::span::Span;
 use diag::{DiagSink, Diagnostics};
 use token::{DelimKind, Group, GroupSpan, Token, TokenKind, TokenStream, TokenTree};
