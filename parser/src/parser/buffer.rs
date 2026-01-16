@@ -1,9 +1,14 @@
 use std::{cell::Cell, fmt::Debug};
 
-use crate::parser::{
-   errors::*,
-   syntax::parse::{Parse, ParseError, Result},
+use crate::{
+   parser::{
+      errors::*,
+      syntax::parse::{Parse, ParseError, Result},
+   },
+   peek,
+   syntax::{parse::Recover, token::Error},
 };
+use common::span::Span;
 use diag::{DiagSink, DiagSnapshot};
 use token::{Delimiter, Group, GroupDelim, Token, TokenKind as TK, TokenStream, TokenTree as TT};
 
@@ -88,6 +93,58 @@ impl<'t> ParseBuffer<'t> {
          Err(e) => Err(e.into_fail()),
          ok => ok,
       }
+   }
+
+   pub fn parse_recovery<T: Recover>(&self, sink: &mut DiagSink) -> Result<T> {
+      let start = self.pos();
+
+      let result = T::try_parse(self, sink);
+      if result.is_err() {
+         while !self.is_empty() && peek!(T::SyncPoint where self) {
+            self.advance();
+         }
+
+         Ok(T::into_error(Error {
+            span: Span {
+               start,
+               end: self.pos(),
+            },
+         }))
+      } else {
+         result
+      }
+   }
+
+   pub fn try_parse_recovery<T: Recover>(&self, sink: &mut DiagSink) -> Result<Option<T>> {
+      let snapshot = self.snapshot(sink);
+      let start = self.pos();
+
+      let result = T::try_parse(self, sink);
+      let result = match result {
+         Ok(node) => Some(node),
+
+         Err(ParseError::Never) => {
+            self.restore(sink, snapshot);
+            None
+         }
+
+         _ => {
+            while !self.is_empty() && !peek!(T::SyncPoint where self) {
+               self.advance();
+            }
+
+            let error = Error {
+               span: Span {
+                  start,
+                  end: self.pos(),
+               },
+            };
+
+            Some(T::into_error(error))
+         }
+      };
+
+      Ok(result)
    }
 
    pub fn try_parse<T: Parse>(&self, sink: &mut DiagSink) -> Result<Option<T>> {

@@ -5,7 +5,7 @@ pub mod token;
 
 use std::fmt::Debug;
 
-use macros::{AstPrint, Parse, Recover, Span};
+use macros::{AstPrint, Span};
 
 use crate::{
    Tok, parse,
@@ -15,13 +15,13 @@ use crate::{
    },
 };
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeInfer(pub Tok![_]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeIdent(pub Ident);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeFn {
    pub fn_tok: Tok![fn],
    pub mut_tok: Option<Tok![mut]>,
@@ -29,14 +29,14 @@ pub struct TypeFn {
    pub ret: Ret,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeRef {
    pub ref_tok: Tok![&],
    pub mut_tok: Option<Tok![mut]>,
    pub pointee: Box<Type>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypePtr {
    pub ptr_tok: Tok![*],
    pub mut_tok: Option<Tok![mut]>,
@@ -46,38 +46,33 @@ pub struct TypePtr {
 #[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeParen(pub Tok![(Box<Type>)]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeTuple(pub Tok![(Type,)]);
 
-#[derive(Debug, Clone, Parse, Span)]
+#[derive(Debug, Clone, Span)]
 pub struct ArrayInner {
    pub elem: Box<Type>,
    pub semi_tok: Tok![;],
    pub lens: Tok![Expr,],
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeArray(pub Tok![[ArrayInner]]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeSlice(pub Tok![[Box<Type>]]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct StructField {
    pub name: Ident,
    pub colon_tok: Tok![:],
    pub lens: Box<Type>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeStruct(pub Tok![{StructField,}]);
 
-#[derive(Debug, Clone, AstPrint, Span, Recover)]
-#[recover(
-   sync_point = "sync::TypeSyncPoint",
-   try_parse = "Type::try_parse",
-   err_var = "Error"
-)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub enum Type {
    Infer(TypeInfer),
    Ident(TypeIdent),
@@ -100,45 +95,45 @@ pub struct ExprRange {
    pub rhs: Box<Expr>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ExprTuple(pub Tok![(Expr,)]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ExprArray(pub Tok![[Expr,]]);
 
-#[derive(Debug, Clone, Parse, Span)]
+#[derive(Debug, Clone, Span)]
 pub struct RepeatInner {
    pub elem: Box<Expr>,
    pub semi_tok: Tok![;],
    pub lens: Tok![Expr,],
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ExprRepeat(pub Tok![[RepeatInner]]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct FieldInit {
    pub colon_tok: Tok![:],
    pub value: Box<Expr>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct FieldValue {
    pub name: Ident,
    pub init: Option<FieldInit>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ExprStruct(pub Tok![{FieldValue,}]);
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ExprFn {
    pub sign: FnSign,
    pub eq_tok: Tok![=],
    pub body: FnBody,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct FnSign {
    pub fn_tok: Tok![fn],
    pub mut_tok: Option<Tok![mut]>,
@@ -146,10 +141,10 @@ pub struct FnSign {
    pub ret: Option<Ret>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Params(Tok![(Param,)]);
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct Param {
    pub mut_tok: Option<Tok![mut]>,
    pub name: Ident,
@@ -157,7 +152,7 @@ pub struct Param {
    pub ty: Box<Type>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Ret {
    pub arrow_tok: Tok![->],
    pub ty: Box<Type>,
@@ -170,26 +165,26 @@ pub enum FnBody {
    Asm(Asm),
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Ffi {
    extern_tok: Tok![extern],
    abi: Tok![(Abi)],
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Abi {
    abi: LitStr,
    comma_tok: Tok![,],
    symbol: LitStr,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Asm {
    extern_tok: Tok![asm],
    ir: Tok![{ LitStr }],
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct ExprLit {
    pub lit: Lit,
    pub suffix: Option<Suffix>,
@@ -201,7 +196,7 @@ pub enum Member {
    Index(LitInt),
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ExprIdent(pub Ident);
 
 #[derive(Debug, Clone, AstPrint, Span)]
@@ -292,14 +287,14 @@ pub struct ExprIndex {
    pub indices: Tok![[Expr,]],
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct ExprCase {
    pub label: Option<Labelled>,
    pub case_tok: Tok![case],
    pub arms: Tok![{CaseArm,}],
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct CaseArm {
    pub label: Option<Labelled>,
    pub cond: Cond,
@@ -307,7 +302,7 @@ pub struct CaseArm {
    pub value: Box<Expr>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct ExprIf {
    pub label: Option<Labelled>,
    pub if_tok: Tok![if],
@@ -316,7 +311,7 @@ pub struct ExprIf {
    pub else_branch: Option<ElseBranch>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct ExprWhile {
    pub label: Option<Labelled>,
    pub while_tok: Tok![while],
@@ -325,7 +320,7 @@ pub struct ExprWhile {
    pub exit: Option<ElseBranch>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct ExprFor {
    pub label: Option<Labelled>,
    pub for_tok: Tok![for],
@@ -336,13 +331,13 @@ pub struct ExprFor {
    pub exit: Option<ElseBranch>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct ElseBranch {
    pub else_tok: Tok![else],
    pub body: Block,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse)]
+#[derive(Debug, Clone, AstPrint)]
 pub struct ExprBlock {
    pub label: Option<Labelled>,
    pub block: Block,
@@ -368,19 +363,14 @@ pub struct ExprCont {
    pub value: Option<Box<Expr>>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Block(
    pub  Tok![{
       Stmt;
    }],
 );
 
-#[derive(Debug, Clone, AstPrint, Span, Recover)]
-#[recover(
-   sync_point = "Tok![;]",
-   try_parse = "Stmt::try_parse",
-   err_var = "Error"
-)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub enum Stmt {
    Def(Def),
    Expr(Expr),
@@ -388,7 +378,7 @@ pub enum Stmt {
    Error(Error),
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Labelled {
    pub label: Label,
    pub colon: Tok![:],
@@ -397,12 +387,7 @@ pub struct Labelled {
 #[derive(Debug, Clone, AstPrint, Span)]
 pub struct Cond(Box<Expr>);
 
-#[derive(Debug, Clone, AstPrint, Span, Recover)]
-#[recover(
-   sync_point = "sync::SyncPoint",
-   try_parse = "Expr::try_parse",
-   err_var = "Error"
-)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub enum Expr {
    Range(ExprRange),
    Tuple(ExprTuple),
@@ -450,20 +435,20 @@ pub struct LocalDef {
    pub init: Option<LocalInit>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct LocalInit {
    pub eq_tok: Tok![=],
    pub value: Box<Expr>,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct FnDef {
    pub name: Ident,
    pub colon_tok: Tok![:],
    pub function: ExprFn,
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeDef {
    pub name: Ident,
    pub colon_tok: Tok![:],
@@ -472,12 +457,7 @@ pub struct TypeDef {
    pub ty: Box<Type>,
 }
 
-#[derive(Debug, Clone, AstPrint, Span, Recover)]
-#[recover(
-   sync_point = "Tok![;]",
-   try_parse = "Def::try_parse",
-   err_var = "Error"
-)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub enum Def {
    Local(LocalDef),
    Fn(FnDef),
@@ -486,12 +466,7 @@ pub enum Def {
    Error(Error),
 }
 
-#[derive(Debug, Clone, AstPrint, Span, Recover)]
-#[recover(
-   sync_point = "Tok![;]",
-   try_parse = "GlobalItem::try_parse",
-   err_var = "Error"
-)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub enum GlobalItem {
    Def(Box<Def>),
    Asm(Asm),
@@ -499,7 +474,7 @@ pub enum GlobalItem {
    Error(Error),
 }
 
-#[derive(Debug, Clone, AstPrint, Parse, Span)]
+#[derive(Debug, Clone, AstPrint, Span)]
 pub struct Root(pub Separated<GlobalItem, Tok![;]>);
 
 #[derive(Clone, Span)]

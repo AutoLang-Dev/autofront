@@ -2,6 +2,7 @@ use crate::{
    Tok,
    parser::{ParseBuffer, errors::UnexpectedToken, syntax::*},
    pratt,
+   syntax::sync::{SyncPoint, TypeSyncPoint},
 };
 use ::token::{GroupDelim, Op, TokenKind as TK, TokenTree as TT};
 use diag::DiagSink;
@@ -104,8 +105,68 @@ impl Parse for LocalDef {
    }
 }
 
-impl Type {
-   pub fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Type> {
+pub trait Recover: Sized {
+   type SyncPoint: Parse;
+   fn into_error(error: Error) -> Self;
+   fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self>;
+}
+
+macro_rules! impl_parse_where_recover {
+   ($ty:ty) => {
+      impl $crate::parser::syntax::parse::Parse for $ty {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink,
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            input.parse_recovery(sink)
+         }
+      }
+
+      impl $crate::parser::syntax::parse::Parse for std::option::Option<$ty> {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink,
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            input.try_parse_recovery(sink)
+         }
+      }
+
+      impl $crate::parser::syntax::parse::Parse for std::boxed::Box<$ty> {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink,
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            <$ty as $crate::parser::syntax::parse::Parse>::parse(input, sink)
+               .map(std::boxed::Box::new)
+         }
+      }
+
+      impl $crate::parser::syntax::parse::Parse for std::option::Option<std::boxed::Box<$ty>> {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink,
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            Ok(
+               <std::option::Option<$ty> as $crate::parser::syntax::parse::Parse>::parse(
+                  input, sink,
+               )
+               .map(std::boxed::Box::new)
+               .unwrap()
+               .map(std::boxed::Box::new),
+            )
+         }
+      }
+   };
+}
+
+impl Recover for Type {
+   type SyncPoint = TypeSyncPoint;
+
+   fn into_error(error: Error) -> Self {
+      Self::Error(error)
+   }
+
+   fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Type> {
       let ty = match input.require(sink)? {
          TT::Token(token) => match &token.kind {
             TK::Ident(id) => match id.as_ref() {
@@ -175,8 +236,16 @@ impl Type {
    }
 }
 
-impl Stmt {
-   pub fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
+impl_parse_where_recover!(Type);
+
+impl Recover for Stmt {
+   type SyncPoint = Tok![;];
+
+   fn into_error(error: Error) -> Self {
+      Self::Error(error)
+   }
+
+   fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
       let is_def = 'blk: {
          let input = input.clone();
 
@@ -203,14 +272,30 @@ impl Stmt {
    }
 }
 
-impl Expr {
-   pub fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Expr> {
+impl_parse_where_recover!(Stmt);
+
+impl Recover for Expr {
+   type SyncPoint = SyncPoint;
+
+   fn into_error(error: Error) -> Self {
+      Self::Error(error)
+   }
+
+   fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Expr> {
       Self::pratt(Bp::Atom, input, sink)
    }
 }
 
-impl Def {
-   pub fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
+impl_parse_where_recover!(Expr);
+
+impl Recover for Def {
+   type SyncPoint = Tok![;];
+
+   fn into_error(error: Error) -> Self {
+      Self::Error(error)
+   }
+
+   fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
       let def = if !peek!(Tok![mut] where input) {
          let input2 = input.clone();
          input2.advance();
@@ -229,8 +314,16 @@ impl Def {
    }
 }
 
-impl GlobalItem {
-   pub fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
+impl_parse_where_recover!(Def);
+
+impl Recover for GlobalItem {
+   type SyncPoint = Tok![;];
+
+   fn into_error(error: Error) -> Self {
+      Self::Error(error)
+   }
+
+   fn try_parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
       let item = if peek!(Tok![asm] where input) {
          Self::Asm(input.parse(sink)?)
       } else {
@@ -240,3 +333,224 @@ impl GlobalItem {
       Ok(item)
    }
 }
+
+impl_parse_where_recover!(GlobalItem);
+
+#[macro_export]
+macro_rules! impl_parse {
+   (
+      $ty:ty {
+         $($field:ident),* $(,)?
+      }
+   ) => {
+      impl $crate::parser::syntax::parse::Parse for $ty
+      {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            $(
+               $crate::parse!($field in input, sink);
+            )*
+            Ok(Self { $($field),* })
+         }
+      }
+
+      impl $crate::parser::syntax::parse::Parse for std::option::Option<$ty>
+      {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            input.try_parse(sink)
+         }
+      }
+   };
+
+   (
+      $ty:ident ( $($field:ident),* )
+   ) => {
+      impl $crate::parser::syntax::parse::Parse for $ty
+      {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            $(
+               $crate::parse!($field in input, sink);
+            )*
+            Ok(Self ( $($field),* ))
+         }
+      }
+
+      impl $crate::parser::syntax::parse::Parse for std::option::Option<$ty>
+      {
+         fn parse(
+            input: &$crate::parser::ParseBuffer,
+            sink: &mut diag::DiagSink
+         ) -> $crate::parser::syntax::parse::Result<Self> {
+            input.try_parse(sink)
+         }
+      }
+   };
+}
+
+impl_parse!(TypeInfer(x));
+
+impl_parse!(TypeIdent(x));
+
+impl_parse!(TypeFn {
+   fn_tok,
+   mut_tok,
+   params,
+   ret,
+});
+
+impl_parse!(TypeRef {
+   ref_tok,
+   mut_tok,
+   pointee,
+});
+
+impl_parse!(TypePtr {
+   ptr_tok,
+   mut_tok,
+   pointee,
+});
+
+impl_parse!(TypeTuple(x));
+
+impl_parse!(ArrayInner {
+   elem,
+   semi_tok,
+   lens,
+});
+
+impl_parse!(TypeArray(x));
+
+impl_parse!(TypeSlice(x));
+
+impl_parse!(StructField {
+   name,
+   colon_tok,
+   lens,
+});
+
+impl_parse!(TypeStruct(x));
+
+impl_parse!(ExprTuple(x));
+
+impl_parse!(ExprArray(x));
+
+impl_parse!(RepeatInner {
+   elem,
+   semi_tok,
+   lens,
+});
+
+impl_parse!(ExprRepeat(x));
+
+impl_parse!(FieldInit { colon_tok, value });
+
+impl_parse!(FieldValue { name, init });
+
+impl_parse!(ExprStruct(x));
+
+impl_parse!(ExprFn { sign, eq_tok, body });
+
+impl_parse!(FnSign {
+   fn_tok,
+   mut_tok,
+   params,
+   ret,
+});
+
+impl_parse!(Params(x));
+
+impl_parse!(Param {
+   mut_tok,
+   name,
+   colon_tok,
+   ty,
+});
+
+impl_parse!(Ret { arrow_tok, ty });
+
+impl_parse!(Ffi { extern_tok, abi });
+
+impl_parse!(Abi {
+   abi,
+   comma_tok,
+   symbol,
+});
+
+impl_parse!(Asm { extern_tok, ir });
+
+impl_parse!(ExprLit { lit, suffix });
+
+impl_parse!(ExprIdent(x));
+
+impl_parse!(ExprCase {
+   label,
+   case_tok,
+   arms,
+});
+
+impl_parse!(CaseArm {
+   label,
+   cond,
+   eq_tok,
+   value,
+});
+
+impl_parse!(ExprIf {
+   label,
+   if_tok,
+   cond,
+   then_branch,
+   else_branch,
+});
+
+impl_parse!(ExprWhile {
+   label,
+   while_tok,
+   cond,
+   body,
+   exit,
+});
+
+impl_parse!(ExprFor {
+   label,
+   for_tok,
+   cond,
+   in_tok,
+   range,
+   body,
+   exit,
+});
+
+impl_parse!(ElseBranch { else_tok, body });
+
+impl_parse!(ExprBlock { label, block });
+
+impl_parse!(Block(x));
+
+impl_parse!(Labelled { label, colon });
+
+impl_parse!(LocalInit { eq_tok, value });
+
+impl_parse!(FnDef {
+   name,
+   colon_tok,
+   function,
+});
+
+impl_parse!(TypeDef {
+   name,
+   colon_tok,
+   type_tok,
+   eq_tok,
+   ty,
+});
+
+impl_parse!(Root(x));
