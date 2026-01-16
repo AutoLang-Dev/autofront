@@ -1,0 +1,15 @@
+[package]
+name = "lexer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+locale = { path = "../locale" }
+diag = { path = "../diag" }
+token = { path = "../token" }
+unicode-ident = "1.0.22"
+unicode-normalization = "0.1.25"
+fluent-i18n = "0.1.0"
+annotate-snippets = "0.12.10"

@@ -98,7 +98,7 @@ fn expand_struct(
    };
 
    Ok(quote! {
-       impl #impl_generics crate::pipelines::parser::print::AstPrint for #name #ty_generics #where_clause {
+       impl #impl_generics #AstPrint for #name #ty_generics #where_clause {
            fn print(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
                writeln!(f, "{} {} ", stringify!(#name), #open_token)?;
                #field_prints

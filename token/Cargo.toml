@@ -1,0 +1,10 @@
+[package]
+name = "token"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+common = { path = "../common"}
+anstyle = "1.0.13"
+unicode-width = "0.2.2"

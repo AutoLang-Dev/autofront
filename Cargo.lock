@@ -80,13 +80,12 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 name = "autofront"
 version = "0.0.1"
 dependencies = [
- "annotate-snippets",
  "anstream",
- "fluent-i18n",
- "macros",
- "num-bigint",
- "unicode-ident",
- "unicode-normalization",
+ "common",
+ "diag",
+ "lexer",
+ "locale",
+ "parser",
  "unicode-width",
 ]
 
@@ -105,6 +104,10 @@ name = "colorchoice"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b05b61dc5112cbb17e4b6cd61790d9845d13888356391624cbe7e41efeac1e75"
+
+[[package]]
+name = "common"
+version = "0.0.1"
 
 [[package]]
 name = "crossbeam-deque"
@@ -130,6 +133,16 @@ name = "crossbeam-utils"
 version = "0.8.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d0a5c400df2834b80a4c3327b3aad3a4c4cd4de0629063962b03235697506a28"
+
+[[package]]
+name = "diag"
+version = "0.0.1"
+dependencies = [
+ "annotate-snippets",
+ "anstream",
+ "common",
+ "locale",
+]
 
 [[package]]
 name = "displaydoc"
@@ -285,10 +298,32 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a6cb138bb79a146c1bd460005623e142ef0181e3d0219cb493e02f7d08a35695"
 
 [[package]]
+name = "lexer"
+version = "0.0.1"
+dependencies = [
+ "annotate-snippets",
+ "common",
+ "diag",
+ "fluent-i18n",
+ "locale",
+ "token",
+ "unicode-ident",
+ "unicode-normalization",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.178"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37c93d8daa9d8a012fd8ab92f088405fb202ea0b6ab73ee2482ae66af4f42091"
+
+[[package]]
+name = "locale"
+version = "0.0.1"
+dependencies = [
+ "anstream",
+ "fluent-i18n",
+]
 
 [[package]]
 name = "lock_api"
@@ -353,6 +388,19 @@ name = "once_cell_polyfill"
 version = "1.70.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "384b8ab6d37215f3c5301a95a4accb5d64aa607f1fcb26a11b5303878451b4fe"
+
+[[package]]
+name = "parser"
+version = "0.0.1"
+dependencies = [
+ "annotate-snippets",
+ "common",
+ "diag",
+ "locale",
+ "num-bigint",
+ "syntax",
+ "token",
+]
 
 [[package]]
 name = "proc-macro-hack"
@@ -479,6 +527,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "syntax"
+version = "0.0.1"
+dependencies = [
+ "common",
+ "macros",
+ "num-bigint",
+ "token",
+]
+
+[[package]]
 name = "sys-locale"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -532,6 +590,15 @@ name = "tinyvec_macros"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1f3ccbac311fea05f86f61904b462b55fb3df8837a366dfc601a0161d0532f20"
+
+[[package]]
+name = "token"
+version = "0.0.1"
+dependencies = [
+ "anstyle",
+ "common",
+ "unicode-width",
+]
 
 [[package]]
 name = "type-map"

@@ -1,0 +1,9 @@
+[package]
+name = "locale"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+anstream = "0.6.21"
+fluent-i18n = "0.1.0"
