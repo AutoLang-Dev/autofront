@@ -86,7 +86,6 @@ dependencies = [
  "lexer",
  "locale",
  "parser",
- "token",
  "unicode-width",
 ]
 
@@ -398,7 +397,6 @@ dependencies = [
  "common",
  "diag",
  "locale",
- "macros",
  "num-bigint",
  "syntax",
  "token",

@@ -10,6 +10,5 @@ locale = { path = "../locale" }
 diag = { path = "../diag" }
 token = { path = "../token" }
 syntax = { path = "../syntax" }
-macros = { path = "../macros" }
 num-bigint = "0.4.6"
 annotate-snippets = "0.12.10"
