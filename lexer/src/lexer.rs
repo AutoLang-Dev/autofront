@@ -1,9 +1,10 @@
+mod chars;
 mod errors;
 
 use annotate_snippets::normalize_untrusted_str;
 use unicode_normalization::UnicodeNormalization;
 
-use crate::{pipelines::lexer::errors::*, utils::AttrForLexing};
+use crate::lexer::{chars::AttrForLexing, errors::*};
 use common::{source::Source, span::Span};
 use diag::{DiagSink, Diagnostics};
 
@@ -594,7 +595,7 @@ impl<'src, 'sink> Lexer<'src, 'sink> {
    }
 
    fn lex_ident(&mut self) -> String {
-      use crate::utils::Id::*;
+      use chars::Id::*;
 
       let mut id = String::new();
 

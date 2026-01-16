@@ -3,7 +3,7 @@ use std::fmt::{self, Display, Formatter, Write};
 use annotate_snippets::{Group, Patch};
 use fluent_i18n::ToFluentValue;
 
-use crate::pipelines::lexer::Source;
+use crate::lexer::Source;
 use common::span::Span;
 use diag::{DiagPrinter, Diagnostics, SourceSnippet, annotation_here, error, help, warning};
 use locale::{tre, wtr};

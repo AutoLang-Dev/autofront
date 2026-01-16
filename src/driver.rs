@@ -11,10 +11,11 @@ use unicode_width::UnicodeWidthStr;
 
 use crate::{
    cli::{Command, DebugSubcommand, parse_args, print_help},
-   pipelines::{lexer::lex, parser::parse, tokentree::parse_token_tree},
+   pipelines::{parser::parse, tokentree::parse_token_tree},
 };
 use common::source::Source;
 use diag::{DiagPrinter, DiagSink};
+use lexer::lexer::lex;
 use locale::tr;
 
 macro_rules! get_out {
