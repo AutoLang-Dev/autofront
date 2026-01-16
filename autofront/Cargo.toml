@@ -1,0 +1,17 @@
+[package]
+name = "autofront"
+version.workspace = true
+edition.workspace = true
+homepage.workspace = true
+repository.workspace = true
+license.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+locale = { path = "../i18n" }
+diag = { path = "../diag" }
+token = { path = "../token" }
+lexer = { path = "../lexer" }
+parser = { path = "../parser" }
+anstream = "0.6.21"
+unicode-width = "0.2.2"

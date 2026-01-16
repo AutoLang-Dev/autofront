@@ -1,32 +1,8 @@
-[package]
-name = "autofront"
-version.workspace = true
-edition.workspace = true
-homepage.workspace = true
-repository.workspace = true
-license.workspace = true
-
 [profile.release]
 opt-level = 3
 strip = true
 lto = 'fat'
 codegen-units = 1
-
-[dependencies]
-fluent-i18n = "0.1.0"
-unicode-ident = "1.0.22"
-unicode-normalization = "0.1.25"
-unicode-width = "0.2.2"
-annotate-snippets = "0.12.10"
-anstream = "0.6.21"
-num-bigint = "0.4.6"
-common = { path = "common" }
-locale = { path = "i18n" }
-diag = { path = "diag" }
-token = { path = "token" }
-lexer = { path = "lexer" }
-parser = { path = "parser" }
-macros = { path = "macros" }
 
 [patch.crates-io]
 annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
@@ -40,6 +16,7 @@ members = [
     "lexer/",
     "parser/",
     "macros/",
+    "autofront/",
 ]
 
 [workspace.package]

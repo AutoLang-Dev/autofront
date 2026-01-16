@@ -80,19 +80,13 @@ checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 name = "autofront"
 version = "0.0.1"
 dependencies = [
- "annotate-snippets",
  "anstream",
  "common",
  "diag",
- "fluent-i18n",
  "lexer",
  "locale",
- "macros",
- "num-bigint",
  "parser",
  "token",
- "unicode-ident",
- "unicode-normalization",
  "unicode-width",
 ]
 
