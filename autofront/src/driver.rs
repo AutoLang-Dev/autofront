@@ -12,7 +12,7 @@ use unicode_width::UnicodeWidthStr;
 use crate::cli::{Command, DebugSubcommand, parse_args, print_help};
 use common::source::Source;
 use diag::{DiagPrinter, DiagSink};
-use lexer::{lexer::lex, tokentree::parse_token_tree};
+use lexer::{lex, parse_token_tree};
 use locale::tr;
 use parser::parse;
 

@@ -1,8 +1,8 @@
-mod buffer;
-mod errors;
-mod print;
-mod span;
-mod syntax;
+pub mod buffer;
+pub mod errors;
+pub mod print;
+pub mod span;
+pub mod syntax;
 
 use crate::parser::{
    buffer::ParseBuffer,
