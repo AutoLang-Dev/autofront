@@ -1,16 +1,14 @@
 use std::fmt::{self, Write};
 
-use crate::{
-   pipelines::parser::{
-      ParseBuffer,
-      errors::*,
-      print::AstPrint,
-      span::Spanned,
-      syntax::parse::{Parse, ParseError, Result},
-   },
-   utils::DiagSink,
+use crate::pipelines::parser::{
+   ParseBuffer,
+   errors::*,
+   print::AstPrint,
+   span::Spanned,
+   syntax::parse::{Parse, ParseError, Result},
 };
 use common::span::Span;
+use diag::DiagSink;
 use token::TokenKind as TK;
 
 #[derive(Debug, Clone)]

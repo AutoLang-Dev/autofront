@@ -3,11 +3,9 @@ mod errors;
 use annotate_snippets::normalize_untrusted_str;
 use unicode_normalization::UnicodeNormalization;
 
-use crate::{
-   pipelines::lexer::errors::*,
-   utils::{AttrForLexing, DiagSink, Diagnostics},
-};
+use crate::{pipelines::lexer::errors::*, utils::AttrForLexing};
 use common::{source::Source, span::Span};
+use diag::{DiagSink, Diagnostics};
 
 use token::*;
 use {StrContent::*, TokenKind::*};

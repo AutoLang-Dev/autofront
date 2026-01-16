@@ -5,9 +5,9 @@ use crate::{
       syntax::{parse::Result, pratt::Bp, *},
    },
    pratt,
-   utils::DiagSink,
 };
 use ::token::{Group, GroupDelim, TokenTree as TT};
+use diag::DiagSink;
 
 pub trait InfixParse: Sized {
    fn bp() -> (Bp, Bp);

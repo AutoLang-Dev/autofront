@@ -15,9 +15,9 @@ use crate::{
          *,
       },
    },
-   utils::DiagSink,
 };
 use ::token::{GroupDelim, TokenKind as TK, TokenTree as TT};
+use diag::DiagSink;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 pub enum Bp {

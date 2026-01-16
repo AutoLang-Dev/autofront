@@ -7,8 +7,8 @@ use crate::{
       errors::*,
       syntax::parse::{Parse, ParseError, Result},
    },
-   utils::DiagSink,
 };
+use diag::DiagSink;
 use token::{Op, TokenKind as TK};
 
 macro_rules! define_operator {

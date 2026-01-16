@@ -24,7 +24,7 @@ impl Names {
          ParseBuffer: quote! { #ns::buffer::ParseBuffer },
          Result: quote! { #ns::syntax::parse::Result },
          ParseError: quote! { #ns::syntax::parse::ParseError },
-         DiagSink: quote! { crate::utils::DiagSink },
+         DiagSink: quote! { diag::DiagSink },
          AstPrint: quote! { #ns::print::AstPrint },
          Spanned: quote! { #ns::span::Spanned },
          Span: quote! { common::span::Span },

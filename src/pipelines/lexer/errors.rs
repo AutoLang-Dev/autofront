@@ -3,12 +3,9 @@ use std::fmt::{self, Display, Formatter, Write};
 use annotate_snippets::{Group, Patch};
 use fluent_i18n::ToFluentValue;
 
-use crate::{
-   annotation_here,
-   pipelines::lexer::Source,
-   utils::{DiagPrinter, Diagnostics, SourceSnippet, error, help, warning},
-};
+use crate::pipelines::lexer::Source;
 use common::span::Span;
+use diag::{DiagPrinter, Diagnostics, SourceSnippet, annotation_here, error, help, warning};
 use locale::{tre, wtr};
 
 fn to_radix(radix: u32) -> u8 {

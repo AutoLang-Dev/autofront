@@ -3,16 +3,14 @@ use std::fmt::{self, Write};
 use macros::{AstPrint, Span};
 use num_bigint::BigInt;
 
-use crate::{
-   pipelines::parser::{
-      ParseBuffer,
-      errors::*,
-      print::AstPrint,
-      syntax::parse::{Parse, ParseError, Result},
-   },
-   utils::DiagSink,
+use crate::pipelines::parser::{
+   ParseBuffer,
+   errors::*,
+   print::AstPrint,
+   syntax::parse::{Parse, ParseError, Result},
 };
 use common::span::Span;
+use diag::DiagSink;
 use token::{CharInner, IntLit, StrContent, StrInner, TokenKind as TK};
 
 #[derive(Debug, Clone, Span)]

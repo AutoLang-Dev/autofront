@@ -13,7 +13,6 @@ use crate::{
       pratt::{Bp, Pratt},
       token::*,
    },
-   utils::DiagSink,
 };
 
 #[derive(Debug, Clone, AstPrint, Parse, Span)]

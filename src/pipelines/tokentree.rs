@@ -1,10 +1,8 @@
 mod errors;
 
-use crate::{
-   pipelines::tokentree::errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup},
-   utils::{DiagSink, Diagnostics},
-};
+use crate::pipelines::tokentree::errors::{MismatchDelim, NoCorrespondingDelim, UnclosedGroup};
 use common::span::Span;
+use diag::{DiagSink, Diagnostics};
 use token::{DelimKind, Group, GroupSpan, Token, TokenKind, TokenStream, TokenTree};
 
 #[derive(Debug)]

@@ -2,9 +2,9 @@ use crate::{
    Tok,
    pipelines::parser::{ParseBuffer, errors::UnexpectedToken, syntax::*},
    pratt,
-   utils::DiagSink,
 };
 use ::token::{GroupDelim, Op, TokenKind as TK, TokenTree as TT};
+use diag::DiagSink;
 
 #[macro_export]
 macro_rules! parse {
@@ -17,7 +17,7 @@ macro_rules! parse {
 macro_rules! peek {
    ($ty:ty where $input:expr) => {{
       let input = $input.clone();
-      let mut sink = DiagSink::default();
+      let mut sink = diag::DiagSink::default();
       let tok: $crate::pipelines::parser::syntax::parse::Result<$ty> = input.parse(&mut sink);
       tok.is_ok()
    }};

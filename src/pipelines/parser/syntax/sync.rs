@@ -4,8 +4,8 @@ use crate::{
       ParseBuffer,
       syntax::parse::{Parse, ParseError, Result},
    },
-   utils::DiagSink,
 };
+use diag::DiagSink;
 
 macro_rules! define_sync_point {
    ($type:ident {

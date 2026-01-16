@@ -4,8 +4,8 @@ use crate::{
       ParseBuffer,
       syntax::parse::{Parse, Result},
    },
-   utils::DiagSink,
 };
+use diag::DiagSink;
 use token::TokenKind as TK;
 
 macro_rules! define_ident {

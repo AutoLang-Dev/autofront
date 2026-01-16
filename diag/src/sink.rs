@@ -167,8 +167,8 @@ pub fn here(span: Span) -> Annotation<'static> {
 #[macro_export]
 macro_rules! annotation_here {
    ($src:expr, $span:expr) => {{
-      use $crate::utils::{SourceSnippet, here};
-      $src.snippet().annotation(here($span))
+      use $crate::SourceSnippet;
+      $src.snippet().annotation($crate::here($span))
    }};
 }
 

@@ -5,8 +5,8 @@ use crate::{
       syntax::{parse::Result, pratt::Bp, *},
    },
    pratt,
-   utils::DiagSink,
 };
+use diag::DiagSink;
 
 pub trait PrefixParse: Sized {
    fn bp() -> Bp;

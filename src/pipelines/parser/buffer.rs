@@ -1,12 +1,10 @@
 use std::{cell::Cell, fmt::Debug};
 
-use crate::{
-   pipelines::parser::{
-      errors::*,
-      syntax::parse::{Parse, ParseError, Result},
-   },
-   utils::{DiagSink, DiagSnapshot},
+use crate::pipelines::parser::{
+   errors::*,
+   syntax::parse::{Parse, ParseError, Result},
 };
+use diag::{DiagSink, DiagSnapshot};
 use token::{Delimiter, Group, GroupDelim, Token, TokenKind as TK, TokenStream, TokenTree as TT};
 
 #[derive(Debug, Clone, Copy)]
