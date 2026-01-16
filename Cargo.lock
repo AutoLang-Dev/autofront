@@ -400,6 +400,7 @@ dependencies = [
  "locale",
  "macros",
  "num-bigint",
+ "syntax",
  "token",
 ]
 
@@ -525,6 +526,16 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "syntax"
+version = "0.0.1"
+dependencies = [
+ "common",
+ "macros",
+ "num-bigint",
+ "token",
 ]
 
 [[package]]

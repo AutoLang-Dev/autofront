@@ -1,15 +1,13 @@
 use std::{cell::Cell, fmt::Debug};
 
 use crate::{
-   parser::{
-      errors::*,
-      syntax::parse::{Parse, ParseError, Result},
-   },
+   errors::*,
    peek,
-   syntax::{parse::Recover, token::Error},
+   syntax::parse::{Parse, ParseError, Recover, Result},
 };
 use common::span::Span;
 use diag::{DiagSink, DiagSnapshot};
+use syntax::token::Error;
 use token::{Delimiter, Group, GroupDelim, Token, TokenKind as TK, TokenStream, TokenTree as TT};
 
 #[derive(Debug, Clone, Copy)]

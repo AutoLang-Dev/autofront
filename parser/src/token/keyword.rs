@@ -1,53 +1,47 @@
-use crate::{
-   define_token,
-   parser::{
-      ParseBuffer,
-      syntax::parse::{Parse, Result},
-   },
-};
-use diag::DiagSink;
-use token::TokenKind as TK;
-
-macro_rules! define_ident {
+macro_rules! impl_parse_for_ident {
    ($id:ident, $tok:expr) => {
-      define_token!($id);
-
-      impl Parse for $id {
-         fn parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
-            let pat = TK::Ident($tok.to_string());
+      impl crate::syntax::parse::Parse for syntax::token::$id {
+         fn parse(
+            input: &crate::buffer::ParseBuffer,
+            sink: &mut diag::DiagSink,
+         ) -> crate::syntax::parse::Result<Self> {
+            let pat = token::TokenKind::Ident($tok.to_string());
             let span = input.expect_token_of(pat, sink)?.span;
             input.advance();
-            Ok($id { span })
+            Ok(Self { span })
          }
       }
 
-      impl Parse for Option<$id> {
-         fn parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
+      impl crate::syntax::parse::Parse for std::option::Option<syntax::token::$id> {
+         fn parse(
+            input: &crate::buffer::ParseBuffer,
+            sink: &mut diag::DiagSink,
+         ) -> crate::syntax::parse::Result<Self> {
             input.try_parse(sink)
          }
       }
    };
 }
 
-define_ident!(Wildcard, "_");
+impl_parse_for_ident!(Wildcard, "_");
 
-macro_rules! define_keyword {
+macro_rules! impl_parse_for_keyword {
    ($kw:ident, $tok:ident) => {
-      define_ident!($kw, stringify!($tok));
+      impl_parse_for_ident!($kw, stringify!($tok));
    };
 }
 
-macro_rules! define_all_keyword {
+macro_rules! impl_parse_for_all_keyword {
    {
       $($kw:ident => $tok:ident),* $(,)?
    } => {
       $(
-         define_keyword!($kw, $tok);
+         impl_parse_for_keyword!($kw, $tok);
       )*
    };
 }
 
-define_all_keyword! {
+impl_parse_for_all_keyword! {
    Auto => auto,
    As => as,
    If => if,

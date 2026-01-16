@@ -1,11 +1,4 @@
-use crate::{
-   Tok,
-   parser::{
-      ParseBuffer,
-      syntax::parse::{Parse, ParseError, Result},
-   },
-};
-use diag::DiagSink;
+use syntax::Tok;
 
 macro_rules! define_sync_point {
    ($type:ident {
@@ -14,15 +7,15 @@ macro_rules! define_sync_point {
       #[derive(Debug, Clone)]
       pub struct $type;
 
-      impl Parse for $type {
-         fn parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
+      impl crate::syntax::parse::Parse for $type {
+         fn parse(input: &crate::buffer::ParseBuffer, sink: &mut diag::DiagSink) -> crate::syntax::parse::Result<Self> {
             $(
                if input.try_parse::<$sync_point>(sink)?.is_some() {
                   return Ok(Self);
                };
             )*
 
-            Err(ParseError::Never)
+            Err(crate::syntax::parse::ParseError::Never)
          }
       }
    };

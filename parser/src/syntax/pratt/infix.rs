@@ -1,13 +1,11 @@
 use crate::{
-   Tok, parse,
-   parser::{
-      ParseBuffer,
-      syntax::{parse::Result, pratt::Bp, *},
-   },
-   peek, pratt,
+   buffer::ParseBuffer,
+   parse, peek, pratt,
+   syntax::{parse::Result, pratt::Bp},
 };
 use ::token::{Group, GroupDelim, TokenTree as TT};
 use diag::DiagSink;
+use syntax::{Tok, ast::*, token::*};
 
 pub trait InfixParse: Sized {
    fn bp() -> (Bp, Bp);

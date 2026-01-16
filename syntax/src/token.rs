@@ -16,7 +16,7 @@ macro_rules! define_token {
          pub span: common::span::Span,
       }
 
-      impl $crate::parser::print::AstPrint for $name {
+      impl $crate::print::AstPrint for $name {
          fn print(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
             write!(f, "{} ({})", stringify!($name), self.span)
          }
@@ -131,5 +131,5 @@ macro_rules! Tok {
    [@brace $ty:ty] => { Tok![@prefix Brace::<$ty>] };
    [@sep $ty:ty, $sep:ty] => { Tok![@prefix Separated<$ty, $sep>] };
 
-   [@prefix $($rest:tt)*] => { $crate::parser::syntax::token::$($rest)* }
+   [@prefix $($rest:tt)*] => { $crate::token::$($rest)* }
 }

@@ -1,17 +1,10 @@
 use std::fmt::{self, Write};
 
-use macros::Span;
-
-use crate::parser::{
-   ParseBuffer,
-   errors::{UnexpectedGroup, UnexpectedToken},
-   print::AstPrint,
-   span::Spanned,
-   syntax::parse::{Parse, ParseError, Result},
-};
 use common::span::Span;
-use diag::DiagSink;
-use token::{Delimiter, GroupSpan, TokenTree as TT};
+use macros::Span;
+use token::GroupSpan;
+
+use crate::{print::AstPrint, span::Spanned};
 
 #[derive(Debug, Clone)]
 pub struct Separated<T, S> {
@@ -79,77 +72,6 @@ impl<T, S> Separated<T, S> {
    }
 }
 
-impl<T: Parse, S: Parse> Separated<T, S> {
-   pub fn parse_rest(&mut self, input: &ParseBuffer, sink: &mut DiagSink) -> Result<()> {
-      let mut recovery_flag = None;
-      loop {
-         if input.is_empty() {
-            break;
-         }
-
-         match recovery_flag {
-            Some(flag) => {
-               match flag {
-                  true => _ = input.parse::<S>(sink),
-                  false => _ = input.parse::<T>(sink),
-               };
-               recovery_flag = Some(!flag);
-            }
-            None => {
-               let snapshot = sink.snapshot();
-               let len = self.len();
-
-               if self.last.is_some() {
-                  if let Ok(sep) = input.parse(sink) {
-                     self.push_sep(sep);
-                  }
-               } else if let Ok(val) = input.parse(sink) {
-                  self.push_val(val);
-               }
-
-               if len != self.len() {
-                  continue;
-               }
-
-               recovery_flag = Some(true);
-               sink.restore(snapshot);
-            }
-         }
-      }
-
-      match input.peek() {
-         Some(tt) => {
-            match tt {
-               TT::Token(tok) => sink.diag(UnexpectedToken::new(tok.clone())),
-               TT::Delimited(group) => {
-                  sink.diag(UnexpectedGroup::new(group.delim, group.span.span()))
-               }
-            }
-            Err(ParseError::Fail)
-         }
-         None => {
-            if recovery_flag.is_some() {
-               Err(ParseError::Fail)
-            } else {
-               Ok(())
-            }
-         }
-      }
-
-      // Ok(())
-   }
-}
-
-impl<T: Parse, S: Parse> Parse for Separated<T, S> {
-   fn parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
-      let mut separated = Separated::new();
-
-      separated.parse_rest(input, sink)?;
-
-      Ok(separated)
-   }
-}
-
 fn print_with_ident(x: &impl AstPrint, f: &mut impl Write) -> fmt::Result {
    let mut buffer = String::new();
    x.print(&mut buffer)?;
@@ -213,17 +135,8 @@ macro_rules! define_group {
          pub span: GroupSpan,
       }
 
-      impl<T: Parse> Parse for $delim<T> {
-         fn parse(input: &ParseBuffer, sink: &mut DiagSink) -> Result<Self> {
-            let delim = Delimiter::$delim;
-            let (inner, group) = input.parse_delimited(delim, sink)?;
-            let span = group.span;
-            Ok(Self { inner, span })
-         }
-      }
-
       impl<Inner: AstPrint> AstPrint for $delim<Inner> {
-         fn print(&self, f: &mut impl Write) -> std::fmt::Result {
+         fn print(&self, f: &mut impl std::fmt::Write) -> std::fmt::Result {
             let mut buffer = String::new();
             self.inner.print(&mut buffer)?;
 

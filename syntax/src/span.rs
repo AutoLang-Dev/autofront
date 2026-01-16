@@ -1,7 +1,4 @@
-use crate::parser::syntax::{
-   CaseArm, ExprBlock, ExprBreak, ExprCase, ExprCont, ExprFor, ExprIf, ExprLit, ExprReturn,
-   ExprWhile, FieldValue, FnSign, LocalDef, Param,
-};
+use crate::ast::*;
 use common::span::Span;
 use token::GroupSpan;
 

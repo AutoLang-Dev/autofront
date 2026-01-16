@@ -1,19 +1,8 @@
-pub mod parse;
-pub mod pratt;
-pub mod sync;
-pub mod token;
-
 use std::fmt::Debug;
 
 use macros::{AstPrint, Span};
 
-use crate::{
-   Tok, parse,
-   parser::syntax::{
-      pratt::{Bp, Pratt},
-      token::*,
-   },
-};
+use crate::{Tok, token::*};
 
 #[derive(Debug, Clone, AstPrint, Span)]
 pub struct TypeInfer(pub Tok![_]);
@@ -142,7 +131,7 @@ pub struct FnSign {
 }
 
 #[derive(Debug, Clone, AstPrint, Span)]
-pub struct Params(Tok![(Param,)]);
+pub struct Params(pub Tok![(Param,)]);
 
 #[derive(Debug, Clone, AstPrint)]
 pub struct Param {
@@ -167,21 +156,21 @@ pub enum FnBody {
 
 #[derive(Debug, Clone, AstPrint, Span)]
 pub struct Ffi {
-   extern_tok: Tok![extern],
-   abi: Tok![(Abi)],
+   pub extern_tok: Tok![extern],
+   pub abi: Tok![(Abi)],
 }
 
 #[derive(Debug, Clone, AstPrint, Span)]
 pub struct Abi {
-   abi: LitStr,
-   comma_tok: Tok![,],
-   symbol: LitStr,
+   pub abi: LitStr,
+   pub comma_tok: Tok![,],
+   pub symbol: LitStr,
 }
 
 #[derive(Debug, Clone, AstPrint, Span)]
 pub struct Asm {
-   extern_tok: Tok![asm],
-   ir: Tok![{ LitStr }],
+   pub extern_tok: Tok![asm],
+   pub ir: Tok![{ LitStr }],
 }
 
 #[derive(Debug, Clone, AstPrint)]
@@ -385,7 +374,7 @@ pub struct Labelled {
 }
 
 #[derive(Debug, Clone, AstPrint, Span)]
-pub struct Cond(Box<Expr>);
+pub struct Cond(pub Box<Expr>);
 
 #[derive(Debug, Clone, AstPrint, Span)]
 pub enum Expr {

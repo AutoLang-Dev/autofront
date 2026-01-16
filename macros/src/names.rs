@@ -25,8 +25,8 @@ impl Names {
          Result: quote! { #ns::syntax::parse::Result },
          ParseError: quote! { #ns::syntax::parse::ParseError },
          DiagSink: quote! { diag::DiagSink },
-         AstPrint: quote! { #ns::print::AstPrint },
-         Spanned: quote! { #ns::span::Spanned },
+         AstPrint: quote! { crate::print::AstPrint },
+         Spanned: quote! { crate::span::Spanned },
          Span: quote! { common::span::Span },
          Error: quote! { #ns::syntax::token::Error },
       }

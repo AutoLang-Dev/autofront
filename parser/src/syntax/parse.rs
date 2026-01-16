@@ -1,11 +1,19 @@
 use crate::{
-   Tok,
-   parser::{ParseBuffer, errors::UnexpectedToken, syntax::*},
+   buffer::ParseBuffer,
+   errors::UnexpectedToken,
    pratt,
-   syntax::sync::{SyncPoint, TypeSyncPoint},
+   syntax::{
+      pratt::{Bp, Pratt},
+      sync::{SyncPoint, TypeSyncPoint},
+   },
 };
 use ::token::{GroupDelim, Op, TokenKind as TK, TokenTree as TT};
 use diag::DiagSink;
+use syntax::{
+   Tok,
+   ast::*,
+   token::{Bracket, Error, Label, Paren},
+};
 
 #[macro_export]
 macro_rules! parse {
@@ -19,7 +27,7 @@ macro_rules! peek {
    ($ty:ty where $input:expr) => {{
       let input = $input.clone();
       let mut sink = diag::DiagSink::default();
-      let tok: $crate::parser::syntax::parse::Result<$ty> = input.parse(&mut sink);
+      let tok: $crate::syntax::parse::Result<$ty> = input.parse(&mut sink);
       tok.is_ok()
    }};
 }
@@ -113,46 +121,43 @@ pub trait Recover: Sized {
 
 macro_rules! impl_parse_where_recover {
    ($ty:ty) => {
-      impl $crate::parser::syntax::parse::Parse for $ty {
+      impl $crate::syntax::parse::Parse for $ty {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink,
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             input.parse_recovery(sink)
          }
       }
 
-      impl $crate::parser::syntax::parse::Parse for std::option::Option<$ty> {
+      impl $crate::syntax::parse::Parse for std::option::Option<$ty> {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink,
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             input.try_parse_recovery(sink)
          }
       }
 
-      impl $crate::parser::syntax::parse::Parse for std::boxed::Box<$ty> {
+      impl $crate::syntax::parse::Parse for std::boxed::Box<$ty> {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink,
-         ) -> $crate::parser::syntax::parse::Result<Self> {
-            <$ty as $crate::parser::syntax::parse::Parse>::parse(input, sink)
-               .map(std::boxed::Box::new)
+         ) -> $crate::syntax::parse::Result<Self> {
+            <$ty as $crate::syntax::parse::Parse>::parse(input, sink).map(std::boxed::Box::new)
          }
       }
 
-      impl $crate::parser::syntax::parse::Parse for std::option::Option<std::boxed::Box<$ty>> {
+      impl $crate::syntax::parse::Parse for std::option::Option<std::boxed::Box<$ty>> {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink,
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             Ok(
-               <std::option::Option<$ty> as $crate::parser::syntax::parse::Parse>::parse(
-                  input, sink,
-               )
-               .map(std::boxed::Box::new)
-               .unwrap()
-               .map(std::boxed::Box::new),
+               <std::option::Option<$ty> as $crate::syntax::parse::Parse>::parse(input, sink)
+                  .map(std::boxed::Box::new)
+                  .unwrap()
+                  .map(std::boxed::Box::new),
             )
          }
       }
@@ -343,12 +348,12 @@ macro_rules! impl_parse {
          $($field:ident),* $(,)?
       }
    ) => {
-      impl $crate::parser::syntax::parse::Parse for $ty
+      impl $crate::syntax::parse::Parse for $ty
       {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             $(
                $crate::parse!($field in input, sink);
             )*
@@ -356,12 +361,12 @@ macro_rules! impl_parse {
          }
       }
 
-      impl $crate::parser::syntax::parse::Parse for std::option::Option<$ty>
+      impl $crate::syntax::parse::Parse for std::option::Option<$ty>
       {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             input.try_parse(sink)
          }
       }
@@ -370,12 +375,12 @@ macro_rules! impl_parse {
    (
       $ty:ident ( $($field:ident),* )
    ) => {
-      impl $crate::parser::syntax::parse::Parse for $ty
+      impl $crate::syntax::parse::Parse for $ty
       {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             $(
                $crate::parse!($field in input, sink);
             )*
@@ -383,12 +388,12 @@ macro_rules! impl_parse {
          }
       }
 
-      impl $crate::parser::syntax::parse::Parse for std::option::Option<$ty>
+      impl $crate::syntax::parse::Parse for std::option::Option<$ty>
       {
          fn parse(
-            input: &$crate::parser::ParseBuffer,
+            input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink
-         ) -> $crate::parser::syntax::parse::Result<Self> {
+         ) -> $crate::syntax::parse::Result<Self> {
             input.try_parse(sink)
          }
       }
