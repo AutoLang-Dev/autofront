@@ -1,7 +1,5 @@
 use std::fmt::{self, Display, Formatter};
 
-// use annotate_snippets::renderer::RgbColor;
-
 use anstyle::RgbColor;
 
 use crate::token::{
