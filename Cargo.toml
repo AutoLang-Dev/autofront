@@ -10,7 +10,7 @@ annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.g
 [workspace]
 members = [
     "common/",
-    "i18n/",
+    "locale/",
     "diag/",
     "token/",
     "lexer/",
