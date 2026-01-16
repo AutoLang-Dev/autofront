@@ -19,6 +19,12 @@ pub struct Separated<T, S> {
    pub last: Option<Box<T>>,
 }
 
+impl<T, S> Default for Separated<T, S> {
+   fn default() -> Self {
+      Self::new()
+   }
+}
+
 impl<T, S> Separated<T, S> {
    pub fn new() -> Self {
       Self {

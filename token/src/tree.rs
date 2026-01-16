@@ -163,6 +163,10 @@ pub struct TokenStream {
 }
 
 impl TokenStream {
+   pub fn is_empty(&self) -> bool {
+      self.tt.is_empty()
+   }
+
    pub fn len(&self) -> usize {
       self.tt.len()
    }
