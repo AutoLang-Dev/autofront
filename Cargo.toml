@@ -25,13 +25,22 @@ locale = { path = "i18n" }
 diag = { path = "diag" }
 token = { path = "token" }
 lexer = { path = "lexer" }
+parser = { path = "parser" }
 macros = { path = "macros" }
 
 [patch.crates-io]
 annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
 
 [workspace]
-members = ["common/", "i18n/", "diag/", "token/", "lexer/", "macros/"]
+members = [
+    "common/",
+    "i18n/",
+    "diag/",
+    "token/",
+    "lexer/",
+    "parser/",
+    "macros/",
+]
 
 [workspace.package]
 version = "0.0.1"

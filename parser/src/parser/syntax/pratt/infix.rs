@@ -1,10 +1,10 @@
 use crate::{
-   Tok, parse, peek,
-   pipelines::parser::{
+   Tok, parse,
+   parser::{
       ParseBuffer,
       syntax::{parse::Result, pratt::Bp, *},
    },
-   pratt,
+   peek, pratt,
 };
 use ::token::{Group, GroupDelim, TokenTree as TT};
 use diag::DiagSink;

@@ -1,6 +1,5 @@
 mod cli;
 mod driver;
-mod pipelines;
 
 use std::process::ExitCode;
 

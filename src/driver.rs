@@ -9,14 +9,12 @@ use std::{
 };
 use unicode_width::UnicodeWidthStr;
 
-use crate::{
-   cli::{Command, DebugSubcommand, parse_args, print_help},
-   pipelines::parser::parse,
-};
+use crate::cli::{Command, DebugSubcommand, parse_args, print_help};
 use common::source::Source;
 use diag::{DiagPrinter, DiagSink};
 use lexer::{lexer::lex, tokentree::parse_token_tree};
 use locale::tr;
+use parser::parse;
 
 macro_rules! get_out {
    ($output:expr) => {{

@@ -4,8 +4,8 @@ mod prefix;
 pub use {infix::*, prefix::*};
 
 use crate::{
-   Tok, parse, peek,
-   pipelines::parser::{
+   Tok, parse,
+   parser::{
       ParseBuffer,
       errors::*,
       print::AstPrint,
@@ -15,6 +15,7 @@ use crate::{
          *,
       },
    },
+   peek,
 };
 use ::token::{GroupDelim, TokenKind as TK, TokenTree as TT};
 use diag::DiagSink;
@@ -56,7 +57,7 @@ pub enum Bp {
 #[macro_export]
 macro_rules! pratt {
    ($bp:expr => $pat:pat in $input:expr, $sink:expr) => {
-      let $pat = $crate::pipelines::parser::syntax::pratt::Pratt::pratt($bp, $input, $sink)?;
+      let $pat = $crate::parser::syntax::pratt::Pratt::pratt($bp, $input, $sink)?;
    };
 }
 

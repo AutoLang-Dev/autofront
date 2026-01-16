@@ -17,7 +17,7 @@ pub struct Names {
 
 impl Names {
    pub fn new() -> Self {
-      let ns = quote! { crate::pipelines::parser };
+      let ns = quote! { crate::parser };
 
       Self {
          Parse: quote! { #ns::syntax::parse::Parse },

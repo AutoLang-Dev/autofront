@@ -1,4 +1,4 @@
-use crate::pipelines::parser::syntax::{
+use crate::parser::syntax::{
    CaseArm, ExprBlock, ExprBreak, ExprCase, ExprCont, ExprFor, ExprIf, ExprLit, ExprReturn,
    ExprWhile, FieldValue, FnSign, LocalDef, Param,
 };

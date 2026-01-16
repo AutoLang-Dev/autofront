@@ -1,6 +1,6 @@
 use crate::{
    Tok,
-   pipelines::parser::{
+   parser::{
       ParseBuffer,
       syntax::parse::{Parse, ParseError, Result},
    },

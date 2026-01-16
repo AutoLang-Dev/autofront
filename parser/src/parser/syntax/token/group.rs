@@ -2,7 +2,7 @@ use std::fmt::{self, Write};
 
 use macros::Span;
 
-use crate::pipelines::parser::{
+use crate::parser::{
    ParseBuffer,
    errors::{UnexpectedGroup, UnexpectedToken},
    print::AstPrint,

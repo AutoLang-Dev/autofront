@@ -1,6 +1,6 @@
 use std::fmt::{self, Write};
 
-use crate::pipelines::parser::{
+use crate::parser::{
    ParseBuffer,
    errors::*,
    print::AstPrint,

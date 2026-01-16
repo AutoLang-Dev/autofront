@@ -9,7 +9,7 @@ use macros::{AstPrint, Parse, Recover, Span};
 
 use crate::{
    Tok, parse,
-   pipelines::parser::syntax::{
+   parser::syntax::{
       pratt::{Bp, Pratt},
       token::*,
    },

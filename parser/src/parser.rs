@@ -4,7 +4,7 @@ mod print;
 mod span;
 mod syntax;
 
-use crate::pipelines::parser::{
+use crate::parser::{
    buffer::ParseBuffer,
    syntax::{Ast, Root, token::Separated},
 };

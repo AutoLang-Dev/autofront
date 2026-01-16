@@ -2,7 +2,7 @@ use std::fmt::{self, Debug, Formatter, Write};
 
 use num_bigint::BigInt;
 
-use crate::pipelines::parser::syntax::*;
+use crate::parser::syntax::*;
 use common::span::Span;
 
 pub trait AstPrint: Debug {

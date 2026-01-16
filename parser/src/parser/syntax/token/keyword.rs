@@ -1,6 +1,6 @@
 use crate::{
    define_token,
-   pipelines::parser::{
+   parser::{
       ParseBuffer,
       syntax::parse::{Parse, Result},
    },

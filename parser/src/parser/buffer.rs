@@ -1,6 +1,6 @@
 use std::{cell::Cell, fmt::Debug};
 
-use crate::pipelines::parser::{
+use crate::parser::{
    errors::*,
    syntax::parse::{Parse, ParseError, Result},
 };

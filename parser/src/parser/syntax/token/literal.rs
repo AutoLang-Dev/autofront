@@ -3,7 +3,7 @@ use std::fmt::{self, Write};
 use macros::{AstPrint, Span};
 use num_bigint::BigInt;
 
-use crate::pipelines::parser::{
+use crate::parser::{
    ParseBuffer,
    errors::*,
    print::AstPrint,

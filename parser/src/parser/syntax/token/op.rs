@@ -2,7 +2,7 @@ use macros::{AstPrint, Span};
 
 use crate::{
    Tok, define_token,
-   pipelines::parser::{
+   parser::{
       ParseBuffer,
       errors::*,
       syntax::parse::{Parse, ParseError, Result},
