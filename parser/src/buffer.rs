@@ -183,8 +183,7 @@ impl<'t> ParseBuffer<'t> {
       match self.require(sink)? {
          TT::Token(token) => Ok(token),
          TT::Delimited(group) => {
-            let token = group.token_open();
-            sink.diag(UnexpectedToken::new(token));
+            unexpected_group(sink, group);
             Err(ParseError::Never)
          }
       }
@@ -193,7 +192,7 @@ impl<'t> ParseBuffer<'t> {
    pub fn expect_token_of(&self, expected: TK, sink: &mut DiagSink) -> Result<&Token> {
       let tok = self.expect_token(sink)?;
       if tok.kind != expected {
-         sink.diag(UnexpectedToken::new(tok.clone()));
+         unexpected_token(sink, tok);
          return Err(ParseError::Never);
       }
       Ok(tok)
@@ -217,7 +216,7 @@ impl<'t> ParseBuffer<'t> {
             }
 
             if group.delim.open() != delim {
-               sink.diag(UnexpectedGroup::new(group.delim, group.span.span()));
+               unexpected_group(sink, group);
                return Err(ParseError::Never);
             }
 
@@ -228,16 +227,12 @@ impl<'t> ParseBuffer<'t> {
                return Ok((result, group));
             }
 
-            let token = match buffer.peek().unwrap() {
-               TT::Delimited(group) => group.token_open(),
-               TT::Token(token) => token.clone(),
-            };
-            sink.diag(UnexpectedToken::new(token));
+            unexpected_tt(sink, buffer.peek().unwrap());
             Err(ParseError::Fail)
          }
 
          TT::Token(token) => {
-            sink.diag(UnexpectedToken::new(token.clone()));
+            unexpected_token(sink, token);
             Err(ParseError::Never)
          }
       }

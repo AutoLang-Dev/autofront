@@ -12,7 +12,7 @@ impl Parse for Ident {
       let tok = input.expect_token(sink)?;
 
       let TK::Ident(ident) = &tok.kind else {
-         sink.diag(UnexpectedToken::new(tok.clone()));
+         unexpected_token(sink, tok);
          return Err(ParseError::Never);
       };
 
@@ -45,7 +45,7 @@ impl Parse for Suffix {
          }
 
          _ => {
-            sink.diag(UnexpectedToken::new(tok.clone()));
+            unexpected_token(sink, tok);
             Err(ParseError::Never)
          }
       }
@@ -63,7 +63,7 @@ impl Parse for Label {
       let tok = input.expect_token(sink)?;
 
       let TK::Label(label) = &tok.kind else {
-         sink.diag(UnexpectedToken::new(tok.clone()));
+         unexpected_token(sink, tok);
          return Err(ParseError::Never);
       };
 

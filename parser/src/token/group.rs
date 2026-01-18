@@ -1,11 +1,11 @@
 use crate::{
    buffer::ParseBuffer,
-   errors::{UnexpectedGroup, UnexpectedToken},
+   errors::*,
    syntax::parse::{Parse, ParseError, Result},
 };
 use diag::DiagSink;
 use syntax::token::*;
-use token::{Delimiter, TokenTree as TT};
+use token::Delimiter;
 
 pub trait ParseRest {
    fn parse_rest(&mut self, input: &ParseBuffer, sink: &mut DiagSink) -> Result<()>;
@@ -51,12 +51,7 @@ impl<T: Parse, S: Parse> ParseRest for Separated<T, S> {
 
       match input.peek() {
          Some(tt) => {
-            match tt {
-               TT::Token(tok) => sink.diag(UnexpectedToken::new(tok.clone())),
-               TT::Delimited(group) => {
-                  sink.diag(UnexpectedGroup::new(group.delim, group.span.span()))
-               }
-            }
+            unexpected_tt(sink, tt);
             Err(ParseError::Fail)
          }
          None => {

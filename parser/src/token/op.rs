@@ -93,14 +93,14 @@ macro_rules! impl_parse_for_ops {
             let tok = input.expect_token(sink)?;
 
             let token::TokenKind::Oper(op) = tok.kind else {
-               sink.diag(UnexpectedToken::new(tok.clone()));
+               unexpected_token(sink, tok);
                return Err(crate::syntax::parse::ParseError::Never);
             };
 
             let op = match op {
                $(token::Op::$op_var => $enum_var(input.parse(sink)?)),*,
                _ => {
-                  sink.diag(UnexpectedToken::new(tok.clone()));
+                  unexpected_token(sink, tok);
                   return Err(crate::syntax::parse::ParseError::Never);
                }
             };

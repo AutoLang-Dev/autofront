@@ -1,6 +1,6 @@
 use crate::{
    buffer::ParseBuffer,
-   errors::UnexpectedToken,
+   errors::*,
    pratt,
    syntax::{
       pratt::{Bp, Pratt},
@@ -184,7 +184,7 @@ impl Recover for Type {
             TK::Oper(Op::Mul) => Self::Ptr(input.parse(sink)?),
 
             _ => {
-               sink.diag(UnexpectedToken::new(token.clone()));
+               unexpected_token(sink, token);
                return Err(ParseError::Never);
             }
          },
