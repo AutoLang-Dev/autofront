@@ -351,7 +351,7 @@ impl_parse_where_recover!(GlobalItem);
 macro_rules! impl_parse {
    (
       $ty:ty {
-         $($field:ident),* $(,)?
+         $first:ident $(, $rest:ident)* $(,)?
       }
    ) => {
       impl $crate::syntax::parse::Parse for $ty
@@ -360,10 +360,14 @@ macro_rules! impl_parse {
             input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink
          ) -> $crate::syntax::parse::Result<Self> {
+            $crate::parse!($first in input, sink);
             $(
-               $crate::parse!($field in input, sink);
+               let $rest = match input.parse(sink) {
+                  Ok(ok) => ok,
+                  Err(err) => return Err(err.into_fail()),
+               };
             )*
-            Ok(Self { $($field),* })
+            Ok(Self { $first, $($rest),* })
          }
       }
 
