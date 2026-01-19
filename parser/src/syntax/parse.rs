@@ -209,7 +209,7 @@ impl Recover for Type {
 
                parse!(elem in input, sink);
 
-               if peek!(Tok![;] where input) {
+               let inner = if peek!(Tok![;] where input) {
                   parse!(semi_tok in input, sink);
                   parse!(lens in input, sink);
 
@@ -226,7 +226,13 @@ impl Recover for Type {
                      inner: elem,
                      span: group.span,
                   }))
+               };
+
+               if let Some(tt) = input.peek() {
+                  unexpected_tt(sink, tt);
                }
+
+               inner
             }
 
             GroupDelim::Braces => Self::Struct(input.parse(sink)?),
