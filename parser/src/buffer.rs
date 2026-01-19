@@ -98,7 +98,7 @@ impl<'t> ParseBuffer<'t> {
 
       let result = T::try_parse(self, sink);
       if result.is_err() {
-         while !self.is_empty() && peek!(T::SyncPoint where self) {
+         while !self.is_empty() && !peek!(T::SyncPoint where self) {
             self.advance();
          }
 
