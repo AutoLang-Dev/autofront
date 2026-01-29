@@ -11,4 +11,4 @@ diag = { path = "../diag" }
 token = { path = "../token" }
 syntax = { path = "../syntax" }
 num-bigint = "0.4.6"
-annotate-snippets = "0.12.10"
+annotate-snippets = "0.12.11"

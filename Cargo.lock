@@ -13,8 +13,9 @@ dependencies = [
 
 [[package]]
 name = "annotate-snippets"
-version = "0.12.10"
-source = "git+https://github.com/KeqingMoe/annotate-snippets-rs.git?branch=fix-unicode-patch#2fb93f5f37d57ae120b52c149283ad5194a12a80"
+version = "0.12.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "16e4850548ff4a25a77ce3bda7241874e17fb702ea551f0cc62a2dbe052f1272"
 dependencies = [
  "anstyle",
  "unicode-width",
