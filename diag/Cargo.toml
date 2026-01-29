@@ -7,5 +7,5 @@ license.workspace = true
 [dependencies]
 common = { path = "../common" }
 locale = { path = "../locale" }
-annotate-snippets = "0.12.10"
+annotate-snippets = "0.12.11"
 anstream = "0.6.21"

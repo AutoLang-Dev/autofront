@@ -4,9 +4,6 @@ strip = true
 lto = 'fat'
 codegen-units = 1
 
-[patch.crates-io]
-annotate-snippets = { git = "https://github.com/KeqingMoe/annotate-snippets-rs.git", branch = "fix-unicode-patch" }
-
 [workspace]
 members = [
     "common",
