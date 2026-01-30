@@ -123,13 +123,13 @@ impl Pratt for Expr {
                            "for" => Expr::For(input.parse(sink)?),
 
                            _ => {
-                              sink.diag(UnexpectedToken::new(token.clone()));
+                              unexpected_token(sink, token);
                               return Err(ParseError::Never);
                            }
                         },
 
                         _ => {
-                           sink.diag(UnexpectedToken::new(token.clone()));
+                           unexpected_token(sink, token);
                            return Err(ParseError::Never);
                         }
                      },
@@ -138,7 +138,7 @@ impl Pratt for Expr {
                         GroupDelim::Braces => Expr::Block(input.parse(sink)?),
 
                         _ => {
-                           sink.diag(UnexpectedGroup::new(group.delim, group.span.span()));
+                           unexpected_group(sink, group);
                            return Err(ParseError::Never);
                         }
                      },
@@ -148,7 +148,7 @@ impl Pratt for Expr {
                TK::Suffix(_) | TK::Delim(_, _) => unreachable!(),
 
                _ => {
-                  sink.diag(UnexpectedToken::new(token.clone()));
+                  unexpected_token(sink, token);
                   return Err(ParseError::Never);
                }
             }
@@ -202,9 +202,8 @@ impl Pratt for Expr {
                   parse!(semi_tok in input, sink);
                   parse!(lens in input, sink);
 
-                  if !input.is_empty() {
-                     let token = input.peek_token_or_delim().unwrap();
-                     sink.diag(UnexpectedToken::new(token));
+                  if let Some(tt) = input.peek() {
+                     unexpected_tt(sink, tt);
                   }
 
                   Expr::Repeat(ExprRepeat(Bracket {

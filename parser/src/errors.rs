@@ -1,9 +1,30 @@
 use annotate_snippets::Group;
 
 use common::{source::Source, span::Span};
-use diag::{DiagPrinter, Diagnostics, annotation_here, error};
+use diag::{DiagPrinter, DiagSink, Diagnostics, annotation_here, error};
 use locale::tre;
-use token::{GroupDelim, Token};
+use token::{GroupDelim, Token, TokenKind as TK, TokenTree as TT};
+
+pub fn unexpected_tt(sink: &mut DiagSink, tt: &TT) {
+   match tt {
+      TT::Delimited(group) => unexpected_group(sink, group),
+      TT::Token(token) => unexpected_token(sink, token),
+   };
+}
+
+pub fn unexpected_token(sink: &mut DiagSink, token: &Token) {
+   match &token.kind {
+      TK::Error(_) => (),
+      _ => sink.diag(UnexpectedToken::new(token.clone())),
+   }
+}
+
+pub fn unexpected_group(sink: &mut DiagSink, group: &token::Group) {
+   match &group.delim {
+      GroupDelim::Mismatch(_, _) => (),
+      _ => sink.diag(UnexpectedGroup::new(group.delim, group.span.span())),
+   }
+}
 
 #[derive(Debug, Clone)]
 pub struct UnexpectedEnd {

@@ -1,11 +1,11 @@
 use crate::{
    buffer::ParseBuffer,
-   errors::{UnexpectedGroup, UnexpectedToken},
+   errors::*,
    syntax::parse::{Parse, ParseError, Result},
 };
 use diag::DiagSink;
 use syntax::token::*;
-use token::{Delimiter, TokenTree as TT};
+use token::Delimiter;
 
 pub trait ParseRest {
    fn parse_rest(&mut self, input: &ParseBuffer, sink: &mut DiagSink) -> Result<()>;
@@ -13,54 +13,40 @@ pub trait ParseRest {
 
 impl<T: Parse, S: Parse> ParseRest for Separated<T, S> {
    fn parse_rest(&mut self, input: &ParseBuffer, sink: &mut DiagSink) -> Result<()> {
-      let mut recovery_flag = None;
-      loop {
+      let fail = loop {
          if input.is_empty() {
-            break;
+            break false;
          }
 
-         match recovery_flag {
-            Some(flag) => {
-               match flag {
-                  true => _ = input.parse::<S>(sink),
-                  false => _ = input.parse::<T>(sink),
-               };
-               recovery_flag = Some(!flag);
-            }
-            None => {
-               let snapshot = sink.snapshot();
-               let len = self.len();
+         let snapshot = sink.snapshot();
 
-               if self.last.is_some() {
-                  if let Ok(sep) = input.parse(sink) {
-                     self.push_sep(sep);
-                  }
-               } else if let Ok(val) = input.parse(sink) {
-                  self.push_val(val);
+         match self.last.is_some() {
+            true => match input.parse(sink) {
+               Ok(sep) => self.push_sep(sep),
+               Err(ParseError::Never) => {
+                  sink.restore(snapshot);
+                  break false;
                }
-
-               if len != self.len() {
-                  continue;
+               _ => break true,
+            },
+            false => match input.parse(sink) {
+               Ok(val) => self.push_val(val),
+               Err(ParseError::Never) => {
+                  sink.restore(snapshot);
+                  break false;
                }
-
-               recovery_flag = Some(true);
-               sink.restore(snapshot);
-            }
+               _ => break true,
+            },
          }
-      }
+      };
 
       match input.peek() {
          Some(tt) => {
-            match tt {
-               TT::Token(tok) => sink.diag(UnexpectedToken::new(tok.clone())),
-               TT::Delimited(group) => {
-                  sink.diag(UnexpectedGroup::new(group.delim, group.span.span()))
-               }
-            }
+            unexpected_tt(sink, tt);
             Err(ParseError::Fail)
          }
          None => {
-            if recovery_flag.is_some() {
+            if fail {
                Err(ParseError::Fail)
             } else {
                Ok(())

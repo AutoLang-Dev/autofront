@@ -114,7 +114,7 @@ impl Diagnostics for NoCorrespondingDelim {
       let span = self.span;
 
       let diag = error()
-         .primary_title(tre!(tt_no_corresponding_delims))
+         .primary_title(tre!(tt_no_corresponding_delim))
          .element(annotation_here!(src, span));
 
       sink.error(diag);

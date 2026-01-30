@@ -1,6 +1,6 @@
 use crate::{
    buffer::ParseBuffer,
-   errors::UnexpectedToken,
+   errors::*,
    pratt,
    syntax::{
       pratt::{Bp, Pratt},
@@ -184,7 +184,7 @@ impl Recover for Type {
             TK::Oper(Op::Mul) => Self::Ptr(input.parse(sink)?),
 
             _ => {
-               sink.diag(UnexpectedToken::new(token.clone()));
+               unexpected_token(sink, token);
                return Err(ParseError::Never);
             }
          },
@@ -209,7 +209,7 @@ impl Recover for Type {
 
                parse!(elem in input, sink);
 
-               if peek!(Tok![;] where input) {
+               let inner = if peek!(Tok![;] where input) {
                   parse!(semi_tok in input, sink);
                   parse!(lens in input, sink);
 
@@ -226,7 +226,13 @@ impl Recover for Type {
                      inner: elem,
                      span: group.span,
                   }))
+               };
+
+               if let Some(tt) = input.peek() {
+                  unexpected_tt(sink, tt);
                }
+
+               inner
             }
 
             GroupDelim::Braces => Self::Struct(input.parse(sink)?),
@@ -345,7 +351,7 @@ impl_parse_where_recover!(GlobalItem);
 macro_rules! impl_parse {
    (
       $ty:ty {
-         $($field:ident),* $(,)?
+         $first:ident $(, $rest:ident)* $(,)?
       }
    ) => {
       impl $crate::syntax::parse::Parse for $ty
@@ -354,10 +360,14 @@ macro_rules! impl_parse {
             input: &$crate::buffer::ParseBuffer,
             sink: &mut diag::DiagSink
          ) -> $crate::syntax::parse::Result<Self> {
+            $crate::parse!($first in input, sink);
             $(
-               $crate::parse!($field in input, sink);
+               let $rest = match input.parse(sink) {
+                  Ok(ok) => ok,
+                  Err(err) => return Err(err.into_fail()),
+               };
             )*
-            Ok(Self { $($field),* })
+            Ok(Self { $first, $($rest),* })
          }
       }
 

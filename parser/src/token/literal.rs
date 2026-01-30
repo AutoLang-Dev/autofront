@@ -15,7 +15,7 @@ macro_rules! process_single_token {
       let span = tok.span;
 
       let TK::$item(lit) = &tok.kind else {
-         $sink.diag(UnexpectedToken::new(tok.clone()));
+         unexpected_token($sink, tok);
          $input.advance();
          return Err(ParseError::Never);
       };
@@ -161,7 +161,7 @@ impl Parse for Lit {
          TK::Bool(_) => Lit::Bool(input.parse(sink)?),
 
          _ => {
-            sink.diag(UnexpectedToken::new(tok.clone()));
+            unexpected_token(sink, tok);
             return Err(ParseError::Never);
          }
       };
