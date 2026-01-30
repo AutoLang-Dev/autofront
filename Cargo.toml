@@ -14,8 +14,12 @@ members = [
     "diag",
     "token",
     "syntax",
+    "hir",
+    "air",
     "lexer",
     "parser",
+    "lowerer",
+    "analyzer",
     "macros",
     "autofront",
 ]
