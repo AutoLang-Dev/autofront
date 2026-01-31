@@ -1,0 +1,11 @@
+symbol_not_found = 无法在此作用域中找到 `{$name}`
+not_a_type = `{$name}` 不是类型
+type_as_value = 类型 `{$name}` 不能用作值
+unsupported_ffi = 仅支持 C FFI
+ret_outside_fn = return 语句在函数体外
+break_outside_loop = 在循环外的 break
+cont_outside_loop = 在循环外的 cont
+duplicate_definition = 重复定义 `{$name}`
+previous_definition_here = 先前在此定义
+unimplemented_global = 暂未实现全局变量
+unimplemented_asm = 暂未实现 asm

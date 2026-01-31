@@ -70,6 +70,18 @@ impl<T, S> Separated<T, S> {
       assert_eq!(self.len(), 1);
       self.last.take().unwrap()
    }
+
+   pub fn vals(&self) -> impl Iterator<Item = &T> {
+      self
+         .inner
+         .iter()
+         .map(|(val, _)| val)
+         .chain(self.last.iter().map(|t| t.as_ref()))
+   }
+
+   pub fn seps(&self) -> impl Iterator<Item = &S> {
+      self.inner.iter().map(|(_, sep)| sep)
+   }
 }
 
 fn print_with_ident(x: &impl AstPrint, f: &mut impl Write) -> fmt::Result {

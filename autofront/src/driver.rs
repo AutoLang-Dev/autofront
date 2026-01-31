@@ -1,4 +1,5 @@
 use anstream::StripStream;
+use lowerer::lower;
 use std::{
    env::args,
    error::Error,
@@ -12,6 +13,8 @@ use unicode_width::UnicodeWidthStr;
 use crate::cli::{Command, DebugSubcommand, parse_args, print_help};
 use common::source::Source;
 use diag::{DiagPrinter, DiagSink};
+// use hir::*;
+// use ast2hir::lower_ast;
 use lexer::{lex, parse_token_tree};
 use locale::tr;
 use parser::parse;
@@ -124,6 +127,31 @@ impl Driver {
       Ok(())
    }
 
+   fn hir(&mut self, args: DebugSubcommand) -> Result<(), Box<dyn Error>> {
+      let DebugSubcommand {
+         file,
+         output,
+         show_recovery,
+      } = args;
+
+      let mut sink = DiagSink::default();
+      let src = self.load(file)?;
+
+      let tokens = lex(&src, &mut sink);
+      let ts = parse_token_tree(&tokens, &mut sink);
+      let ast = parse(&ts, &mut sink);
+      let hir = lower(&ast, &mut sink);
+
+      let printer = DiagPrinter::new(&src);
+      printer.print(sink, show_recovery)?;
+
+      let output = output.unwrap_or_else(|| format!("{}.out", src.file));
+      let out = get_out!(Some(output));
+      write!(out, "{hir:#?}")?;
+
+      Ok(())
+   }
+
    fn drive(mut self) -> Result<(), Box<dyn Error>> {
       use Command::*;
 
@@ -137,6 +165,7 @@ impl Driver {
          Lex(args) => self.lex(args)?,
          Tt(args) => self.tt(args)?,
          Parse(args) => self.parse(args)?,
+         Hir(args) => self.hir(args)?,
       }
 
       Ok(())

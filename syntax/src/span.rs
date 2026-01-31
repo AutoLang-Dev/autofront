@@ -69,11 +69,11 @@ impl Spanned for Param {
 
 impl Spanned for ExprCase {
    fn span(&self) -> Span {
-      let first = match &self.label {
-         Some(first) => first.span(),
-         _ => self.case_tok.span(),
+      let first = self.case_tok.span();
+      let last = match &self.else_arm {
+         Some(last) => last.span(),
+         _ => self.arms.span(),
       };
-      let last = self.arms.span();
       Span::merge(first, last)
    }
 }
@@ -89,12 +89,20 @@ impl Spanned for CaseArm {
    }
 }
 
-impl Spanned for ExprIf {
+impl Spanned for ElseArm {
    fn span(&self) -> Span {
       let first = match &self.label {
          Some(first) => first.span(),
-         _ => self.if_tok.span(),
+         _ => self.else_tok.span(),
       };
+      let last = self.value.span();
+      Span::merge(first, last)
+   }
+}
+
+impl Spanned for ExprIf {
+   fn span(&self) -> Span {
+      let first = self.if_tok.span();
       let last = match &self.else_branch {
          Some(last) => last.span(),
          _ => self.then_branch.span(),
