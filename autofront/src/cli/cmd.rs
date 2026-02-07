@@ -17,6 +17,7 @@ pub enum Command {
    Lex(DebugSubcommand),
    Tt(DebugSubcommand),
    Parse(DebugSubcommand),
+   Hir(DebugSubcommand),
 }
 
 #[derive(Debug, Clone)]

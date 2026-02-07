@@ -12,5 +12,6 @@ locale = { path = "../locale" }
 diag = { path = "../diag" }
 lexer = { path = "../lexer" }
 parser = { path = "../parser" }
+lowerer = { path = "../lowerer" }
 anstream = "0.6.21"
 unicode-width = "0.2.2"

@@ -506,9 +506,9 @@ impl_parse!(ExprLit { lit, suffix });
 impl_parse!(ExprIdent(x));
 
 impl_parse!(ExprCase {
-   label,
    case_tok,
    arms,
+   else_arm,
 });
 
 impl_parse!(CaseArm {
@@ -518,8 +518,14 @@ impl_parse!(CaseArm {
    value,
 });
 
-impl_parse!(ExprIf {
+impl_parse!(ElseArm {
    label,
+   else_tok,
+   eq_tok,
+   value,
+});
+
+impl_parse!(ExprIf {
    if_tok,
    cond,
    then_branch,
@@ -537,7 +543,8 @@ impl_parse!(ExprWhile {
 impl_parse!(ExprFor {
    label,
    for_tok,
-   cond,
+   mutable,
+   name,
    in_tok,
    range,
    body,

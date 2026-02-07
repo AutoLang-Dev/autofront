@@ -278,9 +278,9 @@ pub struct ExprIndex {
 
 #[derive(Debug, Clone, AstPrint)]
 pub struct ExprCase {
-   pub label: Option<Labelled>,
    pub case_tok: Tok![case],
    pub arms: Tok![{CaseArm,}],
+   pub else_arm: Option<ElseArm>,
 }
 
 #[derive(Debug, Clone, AstPrint)]
@@ -292,8 +292,15 @@ pub struct CaseArm {
 }
 
 #[derive(Debug, Clone, AstPrint)]
-pub struct ExprIf {
+pub struct ElseArm {
    pub label: Option<Labelled>,
+   pub else_tok: Tok![else],
+   pub eq_tok: Tok![=],
+   pub value: Box<Expr>,
+}
+
+#[derive(Debug, Clone, AstPrint)]
+pub struct ExprIf {
    pub if_tok: Tok![if],
    pub cond: Box<Expr>,
    pub then_branch: Block,
@@ -313,7 +320,8 @@ pub struct ExprWhile {
 pub struct ExprFor {
    pub label: Option<Labelled>,
    pub for_tok: Tok![for],
-   pub cond: Box<Expr>,
+   pub mutable: Option<Tok![mut]>,
+   pub name: Ident,
    pub in_tok: Tok![in],
    pub range: Box<Expr>,
    pub body: Block,

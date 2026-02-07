@@ -1,0 +1,15 @@
+[package]
+name = "lowerer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+common = { path = "../common" }
+syntax = { path = "../syntax" }
+hir = { path = "../hir" }
+diag = { path = "../diag" }
+locale = { path = "../locale" }
+annotate-snippets = "0.12.11"
+num-bigint = "0.4.6"
+num-traits = "0.2.19"

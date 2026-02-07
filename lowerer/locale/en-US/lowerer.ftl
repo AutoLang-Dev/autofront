@@ -1,0 +1,11 @@
+symbol_not_found = cannot find value `{$name}` in this scope
+not_a_type = `{$name}` is not a type
+type_as_value = type `{$name}` cannot be used as a value
+unsupported_ffi = only C FFI is supported
+ret_outside_fn = return statement outside function body
+break_outside_loop = break outside loop
+cont_outside_loop = cont outside loop
+duplicate_definition = duplicate definition of `{$name}`
+previous_definition_here = previously defined here
+unimplemented_global = global definitions is unimplemented
+unimplemented_asm = asm is unimplemented
